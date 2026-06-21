@@ -12,20 +12,31 @@ local AllowedUsers = {
     ["DeaLova_310"] = true
 }
 
-local ScriptUtama = "https://raw.githubusercontent.com/chenan55/build/refs/heads/main/Script%20gurun"
+-- // MASUKKAN KEDUA LINK RAW GITHUB DI SINI
+local ScriptMenuLengkap = "https://raw.githubusercontent.com/ramadhan7586/chenan_script/refs/heads/main/script_menu"
+local ScriptMenuPro = "https://raw.githubusercontent.com/ramadhan7586/chenan_script/refs/heads/main/menu_pro_chenan"
 
 -- // MENDAPATKAN USERNAME ROBLOX SECARA OTOMATIS
 local Player = game:GetService("Players").LocalPlayer
 local PlayerName = Player.Name 
 
--- // FUNGSI UNTUK MEMUAT SCRIPT UTAMA
+-- // FUNGSI UNTUK MEMUAT SEMUA SCRIPT SETELAH LOGIN BERHASIL
 local function LoadAllScripts()
-    local success1, result1 = pcall(function() return loadstring(game:HttpGet(ScriptUtama))() end)
-    if not success1 then warn("Gagal memuat Script Utama: " .. tostring(result1)) end
+    -- Memuat Script Menu Pertama
+    local success1, result1 = pcall(function() 
+        return loadstring(game:HttpGet(ScriptMenuLengkap))() 
+    end)
+    if not success1 then warn("Gagal memuat Script Menu: " .. tostring(result1)) end
+
+    -- Memuat Script Menu Pro Kedua
+    local success2, result2 = pcall(function() 
+        return loadstring(game:HttpGet(ScriptMenuPro))() 
+    end)
+    if not success2 then warn("Gagal memuat Menu Pro: " .. tostring(result2)) end
 end
 
 -- // SETUP UI WARNA PINK & KUNING + WALLPAPER BUNGA
-local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui") or Player:WaitForChild("PlayerGui"))
 ScreenGui.Name = "SecureAuth"
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 280, 0, 160); Frame.Position = UDim2.new(0.5, -140, 0.5, -80)
@@ -85,6 +96,7 @@ Btn.MouseButton1Click:Connect(function()
         end
         
         ScreenGui:Destroy()
+        -- Memanggil eksekusi kedua script
         LoadAllScripts()
     else
         -- Jika Username tidak terdaftar, tombol akan merah dan menolak akses
