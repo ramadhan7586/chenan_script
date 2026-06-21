@@ -9,7 +9,9 @@ local AllowedUsers = {
     ["Senja_Aurora26"] = true,
     ["Littleikaaa"] = true,
     ["cikiii_28"] = true,
-    ["DeaLova_310"] = true
+    ["DeaLova_310"] = true,
+    ["Sonia_220503"] = true
+
 }
 
 -- // MASUKKAN KEDUA LINK RAW GITHUB DI SINI
