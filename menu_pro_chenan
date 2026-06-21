@@ -1,0 +1,666 @@
+-- =====================================================================
+-- ✨ MENU PRO BY_CHENAN (LANGIT, BANGUNAN V8.5, COPY AVA)
+-- MODE GILA: 100% FULL FITUR (Save/Load Slot, Slider, Raycast, Pin Ava, dll)
+-- =====================================================================
+
+local P, W, RS, UIS = game:GetService("Players"), game:GetService("Workspace"), game:GetService("RunService"), game:GetService("UserInputService")
+local LP = P.LocalPlayer
+local CG = game:GetService("CoreGui") or LP:WaitForChild("PlayerGui")
+local L, TS, HttpService = game:GetService("Lighting"), game:GetService("TweenService"), game:GetService("HttpService")
+local Mouse = LP:GetMouse()
+
+if CG:FindFirstChild("MenuProChenan") then CG.MenuProChenan:Destroy() end
+
+-- ================= DATA ASET FULL (TIDAK ADA YANG DIPOTONG) =================
+local langit = {
+	{"Hutan", 610708481, 610707179, 610708680, 610707072, 610707325, 610708803},
+	{"Gunung Salju", 16370746840, 16370753054, 16370750087, 16370751118, 16370748142, 16370745709},
+	{"Gunung Salju 2", 12639291782, 12639291654, 12639291572, 12639291515, 12639291470, 12639291394},
+	{"Sky Planet", 15983968922, 15983966825, 15983965025, 15983967420, 15983966246, 15983964246},
+	{"Langit Anime", 18351376859, 18351374919, 18351376800, 18351376469, 18351376457, 18351377189},
+	{"Langit HD Cerah", 17480111006, 17480112104, 17480113810, 17480115228, 17480116763, 17480119200},
+	{"Dunia Hancur", 17124357467, 17124359797, 17124362093, 17124365127, 17124367200, 17124369657},
+	{"Kota Tokyo", 111002104470723, 120103616809988, 90725709299954, 81763441176375, 120114716698096, 118400935914373},
+	{"Kota Miami", 831745525, 831744337, 831746013, 831743395, 831745012, 831746497},
+}
+
+local assetList = {
+    -- Masjid
+    {Name = "Masjid 1", ID = "6810419454", Category = "Masjid"}, {Name = "Masjid 2", ID = "3012531893", Category = "Masjid"}, {Name = "Masjid 3", ID = "85911094510771", Category = "Masjid"}, {Name = "Masjid 4", ID = "99865027714237", Category = "Masjid"}, {Name = "Masjid 5", ID = "5534205372", Category = "Masjid"}, {Name = "Masjid 6", ID = "17478211398", Category = "Masjid"}, {Name = "Masjid 7", ID = "4989149646", Category = "Masjid"}, {Name = "Masjid 8", ID = "6554977614", Category = "Masjid"}, {Name = "Masjid 9", ID = "167190567", Category = "Masjid"},
+    -- Items
+    {Name = "balok", ID = "11655783487", Category = "Items"}, {Name = "kursi meja1", ID = "223168706", Category = "Items"}, {Name = "kursi meja2", ID = "80365237076656", Category = "Items"}, {Name = "cermin1", ID = "18640709608", Category = "Items"}, {Name = "cermin2", ID = "10672885006", Category = "Items"}, {Name = "motif1", ID = "100748174515533", Category = "Items"}, {Name = "motif2", ID = "3482943003", Category = "Items"}, {Name = "motif3", ID = "11789484999", Category = "Items"}, {Name = "platform", ID = "16435824472", Category = "Items"}, {Name = "meja", ID = "80365237076656", Category = "Items"}, {Name = "tv", ID = "10673384641", Category = "Items"}, {Name = "kayu", ID = "82259310114489", Category = "Items"}, {Name = "kayu2", ID = "40954684", Category = "Items"}, {Name = "kayu3", ID = "244501220", Category = "Items"}, {Name = "balok1", ID = "14215576529", Category = "Items"}, {Name = "balok2", ID = "5073712", Category = "Items"}, {Name = "tanaman1", ID = "14788911812", Category = "Items"}, {Name = "tanaman2", ID = "2171213658", Category = "Items"}, {Name = "tanaman3", ID = "5502224478", Category = "Items"}, {Name = "bunga1", ID = "5569745108", Category = "Items"}, {Name = "bunga2", ID = "15332716477", Category = "Items"}, {Name = "kamar mandi", ID = "101943142166137", Category = "Items"}, {Name = "kardus", ID = "9614942818", Category = "Items"}, {Name = "dapur", ID = "81035323200698", Category = "Items"}, {Name = "lampu 1", ID = "11491722041", Category = "Items"}, {Name = "lampu 2", ID = "8082935990", Category = "Items"}, {Name = "lampu 3", ID = "16584437073", Category = "Items"}, {Name = "meteran listrik", ID = "1412351244", Category = "Items"}, {Name = "Rear Spoiler1", ID = "4822008534", Category = "Items"}, {Name = "Rear Spoiler2", ID = "10299211492", Category = "Items"}, {Name = "tenda", ID = "95334025", Category = "Items"}, {Name = "radio", ID = "16913349405", Category = "Items"}, {Name = "kursi kaca", ID = "2325973998", Category = "Items"}, {Name = "kursi kaca2", ID = "23983987", Category = "Items"}, {Name = "kursi kaca3", ID = "81376240", Category = "Items"}, {Name = "sofa", ID = "77424644415906", Category = "Items"}, {Name = "sofa2", ID = "12965538391", Category = "Items"}, {Name = "sofa3", ID = "75692201599353", Category = "Items"}, {Name = "sofa4", ID = "11858202164", Category = "Items"}, {Name = "ayunan", ID = "5285812212", Category = "Items"}, {Name = "boneka", ID = "5524438142", Category = "Items"}, {Name = "boneka 2", ID = "8560939634", Category = "Items"}, {Name = "meja kaca", ID = "4475449052", Category = "Items"}, {Name = "kaca panjang", ID = "3613762400", Category = "Items"}, {Name = "speaker1", ID = "13024898957", Category = "Items"}, {Name = "speaker2", ID = "229080736", Category = "Items"}, {Name = "aquarium", ID = "1822238593", Category = "Items"}, {Name = "pohon pisang", ID = "13437819237", Category = "Items"}, {Name = "pohon2", ID = "530766380", Category = "Items"},
+    -- Gedung
+    {Name = "Bangunan 1", ID = "95328463271667", Category = "Gedung"}, {Name = "Bangunan 2", ID = "14731623994", Category = "Gedung"}, {Name = "Bangunan 3", ID = "11060633677", Category = "Gedung"}, {Name = "Bangunan 4", ID = "12143547490", Category = "Gedung"}, {Name = "Bangunan 5", ID = "13854749583", Category = "Gedung"}, {Name = "Bangunan 6", ID = "18902234051", Category = "Gedung"}, {Name = "Bangunan 7", ID = "9032369016", Category = "Gedung"}, {Name = "Bangunan 8", ID = "9676302649", Category = "Gedung"}, {Name = "Bangunan 9", ID = "89334519773324", Category = "Gedung"}, {Name = "Bangunan 10", ID = "2799652039", Category = "Gedung"}, {Name = "Bangunan 11", ID = "4928101363", Category = "Gedung"}, {Name = "Bangunan 12", ID = "131032396910677", Category = "Gedung"}, {Name = "Bangunan 13", ID = "15823512019", Category = "Gedung"}, {Name = "Bangunan 14", ID = "90366969155006", Category = "Gedung"}, {Name = "Bangunan 15", ID = "20886822", Category = "Gedung"}, {Name = "Bangunan 16", ID = "8483659966", Category = "Gedung"}, {Name = "Bangunan 17", ID = "13156629984", Category = "Gedung"}, {Name = "Bangunan 18", ID = "94226889541727", Category = "Gedung"}, {Name = "Bangunan 19", ID = "15584054213", Category = "Gedung"}, {Name = "Bangunan 20", ID = "10330844776", Category = "Gedung"}, {Name = "new york", ID = "7130185320", Category = "Gedung"}, {Name = "kota", ID = "10976110724", Category = "Gedung"}, {Name = "struktur kota", ID = "2016622640", Category = "Gedung"}, {Name = "gedung kota", ID = "11963318908", Category = "Gedung"}, {Name = "gedung", ID = "11410874481", Category = "Gedung"}, {Name = "gedung 2", ID = "12167498021", Category = "Gedung"}, {Name = "gedung bazhard", ID = "11475423490", Category = "Gedung"}, {Name = "kompleks gedung", ID = "1151728216", Category = "Gedung"}, {Name = "apartemen", ID = "11060633677", Category = "Gedung"}, {Name = "sekolah1", ID = "4893502792", Category = "Gedung"}, {Name = "sekolah2", ID = "16325692519", Category = "Gedung"}, {Name = "motel", ID = "2292364", Category = "Gedung"}, {Name = "hotel", ID = "14890876654", Category = "Gedung"}, {Name = "perpustakaan", ID = "5596386522", Category = "Gedung"}, {Name = "pusat resains", ID = "6154077644", Category = "Gedung"}, {Name = "stadion", ID = "4807728287", Category = "Gedung"}, {Name = "rumahkawai", ID = "95832639365399", Category = "Gedung"}, {Name = "kawai3", ID = "94083182183425", Category = "Gedung"}, {Name = "kawai2", ID = "89470808994433", Category = "Gedung"},
+    -- Kendaraan
+    {Name = "pesawat", ID = "5032786420", Category = "Kendaraan"}, {Name = "pesawat airbus", ID = "10828109856", Category = "Kendaraan"}, {Name = "pesawat tempur", ID = "163679132", Category = "Kendaraan"}, {Name = "bomber", ID = "4735054708", Category = "Kendaraan"}, {Name = "jet", ID = "80035747745904", Category = "Kendaraan"}, {Name = "ekskavator", ID = "9028664826", Category = "Kendaraan"}, {Name = "mobil1", ID = "10219147767", Category= "Kendaraan"}, {Name = "pemadam", ID = "11898602096", Category= "Kendaraan"}, {Name = "lambo", ID = "9074354966", Category= "Kendaraan"}, {Name = "pemadam1", ID = "10644142269", Category= "Kendaraan"}, {Name = "villa", ID = "87529290527147", Category= "Kendaraan"}, {Name = "pemadam2", ID = "94660883804541", Category= "Kendaraan"}, {Name = "truck crane", ID = "76335617728655", Category= "Kendaraan"}, {Name = "pemadam3", ID = "10616213823", Category= "Kendaraan"}, {Name = "truck tanki", ID = "90822719934594", Category= "Kendaraan"}, {Name = "mobil tua 1", ID = "10469111600", Category = "Kendaraan"}, {Name = "mobil tua 2", ID = "133402944107675", Category = "Kendaraan"}, {Name = "mobil tua 3", ID = "78801398138659", Category = "Kendaraan"}, {Name = "mobil tua 4", ID = "87322763573573", Category = "Kendaraan"}, {Name = "mobil tua 5", ID = "10620327652", Category = "Kendaraan"}, {Name = "mobil tua 6", ID = "126035388420893", Category = "Kendaraan"}, {Name = "mobil tua 7", ID = "134563765488735", Category = "Kendaraan"}, {Name = "mobil tua 8", ID = "12794192534", Category = "Kendaraan"},
+    -- Kapal
+    {Name = "kapal pesiar kecil", ID = "12209907499", Category = "Kapal"}, {Name = "kapal pesiar besar", ID = "9358736830", Category = "Kapal"}, {Name = "kapal pesiar mewah", ID = "58487077", Category = "Kapal"}, {Name = "kapal pesiar", ID = "14461111692", Category = "Kapal"}, {Name = "kapal kotak", ID = "13852654755", Category = "Kapal"}, {Name = "kapal induk", ID = "282793216", Category = "Kapal"}, {Name = "kapal induk 2", ID = "8362454477", Category = "Kapal"}, {Name = "kapal", ID = "14795929106", Category = "Kapal"},
+    -- Monumen
+    {Name = "Prambanan", ID = "6953878", Category = "Monumen"}, {Name = "tembok china", ID = "333879260", Category = "Monumen"}, {Name = "tugu", ID = "377896878", Category = "Monumen"}, {Name = "gerbang", ID = "22908211", Category = "Monumen"}, {Name = "tahta", ID = "10782792190", Category = "Monumen"}, {Name = "patung kotak", ID = "10782792190", Category = "Monumen"}, {Name = "rumah mewah", ID = "17326127841", Category = "Monumen"}, {Name = "rumah mewah 2", ID = "76709767466056", Category = "Monumen"}, {Name = "kios ikan", ID = "75578792455902", Category= "Monumen"}, {Name = "gentong ikan", ID = "85843725826845", Category= "Monumen"}, {Name = "unta", ID = "13916025173", Category = "Monumen"}, {Name = "unta2", ID = "110525625373566", Category = "Monumen"}, {Name = "unta3", ID = "135308258931822", Category = "Monumen"}, {Name = "unta,sapi", ID = "108325165516343", Category = "Monumen"}, {Name = "bendera Palestina", ID = "16349688504", Category = "Monumen"}, {Name = "bendera negara", ID = "121243067644848", Category = "Monumen"}, {Name = "masjid mesir", ID = "124463588907976", Category = "Monumen"}, {Name = "piramid", ID = "1543085051", Category = "Monumen"},
+}
+local categoriesList = {"Semua", "Masjid", "Items", "Gedung", "Kendaraan", "Kapal", "Monumen"}
+local listUsers = {"KANAYA03247","sezoo81","berryj4em","toyab195","mazztonz4","caigoyy","Naokituch","Loxeyzz3","catcutiiieee","cemaskaudekss","ooredoo1110","unibakwan_imot00","Ghenan1101"}
+
+local function getID(id) return "rbxassetid://" .. tostring(id):match("%d+") end
+
+-- ================= UI SETUP & PEMBUKA =================
+local gui = Instance.new("ScreenGui", CG); gui.Name = "MenuProChenan"; gui.ResetOnSpawn = false
+
+-- TOMBOL TOGGLE MENU PRO (Mengikuti Main Menu)
+local openBtn = Instance.new("TextButton", gui)
+openBtn.Size = UDim2.new(0, 85, 0, 26)
+openBtn.Position = UDim2.new(0.5, -185, 0.5, -140) -- Posisi default di sebelah kiri UI utama
+openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+openBtn.Text = "MENU PRO"
+openBtn.TextColor3 = Color3.fromRGB(255, 0, 0) -- Merah Terang
+openBtn.Font = Enum.Font.GothamBlack
+openBtn.TextSize = 12
+Instance.new("UICorner", openBtn).CornerRadius = UDim.new(0, 6)
+local btnStroke = Instance.new("UIStroke", openBtn)
+btnStroke.Color = Color3.fromRGB(0, 255, 255) -- Cyan
+btnStroke.Thickness = 1.5
+
+-- FITUR BARU LABEL (Menempel tepat di atas tombol MENU PRO)
+local blinkFrame = Instance.new("Frame", openBtn)
+blinkFrame.Size = UDim2.new(1, 0, 0, 18)
+blinkFrame.Position = UDim2.new(0, 0, 0, -22) -- Diposisikan relatif ke openBtn
+blinkFrame.BackgroundColor3 = Color3.fromRGB(0, 128, 128) -- Tosca Tua
+blinkFrame.BorderSizePixel = 0
+Instance.new("UICorner", blinkFrame).CornerRadius = UDim.new(0, 4)
+
+local blinkLabel = Instance.new("TextLabel", blinkFrame)
+blinkLabel.Size = UDim2.new(1, 0, 1, 0)
+blinkLabel.BackgroundTransparency = 1
+blinkLabel.Text = "✨ fitur baru"
+blinkLabel.TextColor3 = Color3.fromRGB(255, 105, 180) -- Pink
+blinkLabel.Font = Enum.Font.GothamBold
+blinkLabel.TextSize = 10
+TS:Create(blinkLabel, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {TextTransparency = 1}):Play()
+
+-- ================= MAIN MENU =================
+local bg = Instance.new("Frame", gui)
+-- Ukuran Diperkecil Menjadi 190x280
+bg.Size, bg.Position, bg.BackgroundColor3, bg.BackgroundTransparency = UDim2.new(0, 190, 0, 280), UDim2.new(0.5, -95, 0.5, -140), Color3.fromRGB(15, 15, 20), 0.35
+bg.BorderSizePixel, bg.ClipsDescendants, bg.Visible = false
+Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 10)
+local UIStroke = Instance.new("UIStroke", bg); UIStroke.Color = Color3.fromRGB(80, 80, 120); UIStroke.Thickness = 1.5
+
+openBtn.MouseButton1Click:Connect(function() bg.Visible = not bg.Visible end)
+
+local topbar = Instance.new("Frame", bg); topbar.Size, topbar.BackgroundColor3, topbar.BackgroundTransparency = UDim2.new(1, 0, 0, 30), Color3.fromRGB(10, 10, 15), 0.5
+Instance.new("UICorner", topbar).CornerRadius = UDim.new(0, 10)
+local title = Instance.new("TextLabel", topbar); title.Size, title.Position, title.BackgroundTransparency, title.TextColor3 = UDim2.new(1, -70, 1, 0), UDim2.new(0, 12, 0, 0), 1, Color3.new(1,1,1)
+title.Text, title.Font, title.TextSize, title.TextXAlignment = "✨ By_Chenan", Enum.Font.GothamBold, 10, Enum.TextXAlignment.Left
+
+local closeBtn = Instance.new("TextButton", topbar); closeBtn.Size, closeBtn.Position, closeBtn.BackgroundColor3, closeBtn.Text, closeBtn.TextColor3, closeBtn.Font = UDim2.new(0, 20, 0, 20), UDim2.new(1, -25, 0, 5), Color3.fromRGB(255, 60, 60), "X", Color3.new(1,1,1), Enum.Font.GothamBold; Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0) 
+closeBtn.MouseButton1Click:Connect(function() bg.Visible = false end)
+local minBtn = Instance.new("TextButton", topbar); minBtn.Size, minBtn.Position, minBtn.BackgroundColor3, minBtn.Text, minBtn.TextColor3, minBtn.Font = UDim2.new(0, 20, 0, 20), UDim2.new(1, -50, 0, 5), Color3.fromRGB(60, 60, 70), "-", Color3.new(1,1,1), Enum.Font.GothamBold; Instance.new("UICorner", minBtn).CornerRadius = UDim.new(1, 0)
+
+-- TAB NAV
+local tabContainer = Instance.new("Frame", bg); tabContainer.Size, tabContainer.Position, tabContainer.BackgroundTransparency = UDim2.new(1, -16, 0, 25), UDim2.new(0, 8, 0, 35), 1
+local function createTabBtn(txt, pos)
+    local b = Instance.new("TextButton", tabContainer); b.Size, b.Position, b.Text, b.Font, b.TextSize = UDim2.new(0.32, 0, 1, 0), pos, txt, Enum.Font.GothamBold, 8
+    b.BackgroundColor3, b.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180); Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4); return b
+end
+local tabSkyBtn, tabBuildBtn, tabCopyBtn = createTabBtn("☁️ Langit", UDim2.new(0, 0, 0, 0)), createTabBtn("🏗️ Bgn", UDim2.new(0.34, 0, 0, 0)), createTabBtn("👤 Ava", UDim2.new(0.68, 0, 0, 0))
+tabSkyBtn.BackgroundColor3, tabSkyBtn.TextColor3 = Color3.fromRGB(80, 100, 180), Color3.new(1,1,1)
+
+local skyFrame, buildFrame, copyFrame = Instance.new("Frame", bg), Instance.new("Frame", bg), Instance.new("ScrollingFrame", bg)
+skyFrame.Size, skyFrame.Position, skyFrame.BackgroundTransparency = UDim2.new(1, 0, 1, -65), UDim2.new(0, 0, 0, 65), 1
+buildFrame.Size, buildFrame.Position, buildFrame.BackgroundTransparency, buildFrame.Visible = UDim2.new(1, 0, 1, -65), UDim2.new(0, 0, 0, 65), 1, false
+
+copyFrame.Size, copyFrame.Position, copyFrame.BackgroundTransparency, copyFrame.ScrollBarThickness, copyFrame.Visible = UDim2.new(1, -16, 1, -70), UDim2.new(0, 8, 0, 65), 1, 2, false
+
+local function switchTab(activeBtn, activeFrame)
+    tabSkyBtn.BackgroundColor3, tabSkyBtn.TextColor3, tabBuildBtn.BackgroundColor3, tabBuildBtn.TextColor3, tabCopyBtn.BackgroundColor3, tabCopyBtn.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180), Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180), Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180)
+    skyFrame.Visible, buildFrame.Visible, copyFrame.Visible = false, false, false
+    activeBtn.BackgroundColor3, activeBtn.TextColor3 = Color3.fromRGB(80, 100, 180), Color3.new(1,1,1)
+    activeFrame.Visible = true
+end
+tabSkyBtn.MouseButton1Click:Connect(function() switchTab(tabSkyBtn, skyFrame) end); tabBuildBtn.MouseButton1Click:Connect(function() switchTab(tabBuildBtn, buildFrame) end); tabCopyBtn.MouseButton1Click:Connect(function() switchTab(tabCopyBtn, copyFrame) end)
+
+-- ================= TAB 1: LANGIT (DIPERBAIKI 2 KOLOM & TEXT BERJALAN) =================
+local isAutoCerah = false
+local cerahBtn = Instance.new("TextButton", skyFrame); cerahBtn.Size, cerahBtn.Position, cerahBtn.BackgroundColor3, cerahBtn.TextColor3, cerahBtn.Text, cerahBtn.Font, cerahBtn.TextSize = UDim2.new(1, -16, 0, 25), UDim2.new(0, 8, 0, 0), Color3.fromRGB(40, 40, 45), Color3.fromRGB(200, 200, 200), "🔴 Auto Cerah: OFF", Enum.Font.GothamBold, 10; Instance.new("UICorner", cerahBtn).CornerRadius = UDim.new(0, 6)
+cerahBtn.MouseButton1Click:Connect(function()
+	isAutoCerah = not isAutoCerah
+	if isAutoCerah then cerahBtn.Text, cerahBtn.TextColor3, cerahBtn.BackgroundColor3 = "🟢 Auto Cerah: ON", Color3.new(1,1,1), Color3.fromRGB(50, 180, 80) else cerahBtn.Text, cerahBtn.TextColor3, cerahBtn.BackgroundColor3 = "🔴 Auto Cerah: OFF", Color3.fromRGB(200,200,200), Color3.fromRGB(40,40,45) end
+end)
+RS.RenderStepped:Connect(function()
+	if isAutoCerah then
+		L.Brightness = 2; L.ClockTime = 12; L.FogEnd = 9999999
+		for _, obj in pairs(L:GetChildren()) do if obj:IsA("Atmosphere") or obj:IsA("Clouds") then obj:Destroy() end end
+		local terrain = workspace:FindFirstChildOfClass("Terrain")
+		if terrain then for _, obj in pairs(terrain:GetChildren()) do if obj:IsA("Clouds") then obj:Destroy() end end end
+	end
+end)
+local skyScroll = Instance.new("ScrollingFrame", skyFrame)
+skyScroll.Size, skyScroll.Position, skyScroll.BackgroundTransparency, skyScroll.ScrollBarThickness = UDim2.new(1, -16, 1, -35), UDim2.new(0, 8, 0, 30), 1, 0
+skyScroll.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#langit / 2) * 88) 
+
+local grid = Instance.new("UIGridLayout", skyScroll)
+grid.CellSize, grid.CellPadding = UDim2.new(0.48, 0, 0, 80), UDim2.new(0, 6, 0, 8) -- Mengatur 2 baris ke bawah
+
+for _, v in ipairs(langit) do
+	local btn = Instance.new("ImageButton", skyScroll) 
+	btn.Image, btn.ScaleType = getID(v[4]), Enum.ScaleType.Crop
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	
+	-- Container teks agar efek geser berjalan mulus tidak menabrak batas
+	local txtContainer = Instance.new("Frame", btn)
+	txtContainer.Size, txtContainer.Position, txtContainer.BackgroundColor3, txtContainer.BackgroundTransparency = UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 1, -20), Color3.new(0,0,0), 0.4
+	txtContainer.ClipsDescendants = true
+	Instance.new("UICorner", txtContainer).CornerRadius = UDim.new(0, 4)
+	
+	local lbl = Instance.new("TextLabel", txtContainer)
+	lbl.Size, lbl.Position = UDim2.new(2, 0, 1, 0), UDim2.new(0, 0, 0, 0) -- Lebar dilipatgandakan untuk space geser
+	lbl.BackgroundTransparency, lbl.TextColor3, lbl.Font, lbl.TextSize = 1, Color3.new(1,1,1), Enum.Font.GothamSemibold, 8
+	lbl.Text = v[1] .. " by_chenan"
+	
+	-- Animasi geser (Marquee bolak-balik agar terlihat slow dan rapi)
+	TS:Create(lbl, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true), {Position = UDim2.new(-1, 0, 0, 0)}):Play()
+
+	btn.MouseButton1Click:Connect(function() local sky = L:FindFirstChildWhichIsA("Sky") or Instance.new("Sky", L); sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt, sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = getID(v[2]), getID(v[3]), getID(v[4]), getID(v[5]), getID(v[6]), getID(v[7]) end)
+end
+
+-- ================= TAB 2: BANGUNAN (FULL FITUR) =================
+local buildTabs = Instance.new("ScrollingFrame", buildFrame); buildTabs.Size, buildTabs.Position, buildTabs.BackgroundTransparency, buildTabs.ScrollBarThickness, buildTabs.CanvasSize, buildTabs.ScrollingDirection = UDim2.new(1, -16, 0, 25), UDim2.new(0, 8, 0, 0), 1, 0, UDim2.new(0, #categoriesList * 65, 0, 0), Enum.ScrollingDirection.X
+local UIListCat = Instance.new("UIListLayout", buildTabs); UIListCat.FillDirection, UIListCat.Padding = Enum.FillDirection.Horizontal, UDim.new(0, 4)
+
+local itemScroll = Instance.new("ScrollingFrame", buildFrame); itemScroll.Size, itemScroll.Position, itemScroll.BackgroundColor3, itemScroll.BackgroundTransparency, itemScroll.ScrollBarThickness = UDim2.new(1, -16, 0, 60), UDim2.new(0, 8, 0, 30), Color3.fromRGB(10, 10, 15), 0.6, 2
+Instance.new("UICorner", itemScroll).CornerRadius = UDim.new(0, 6); Instance.new("UIListLayout", itemScroll).Padding = UDim.new(0, 3)
+
+local ControlPanel = Instance.new("Frame", buildFrame); ControlPanel.Size, ControlPanel.Position, ControlPanel.BackgroundTransparency = UDim2.new(1, -16, 1, -100), UDim2.new(0, 8, 0, 95), 1
+local function createAestheticBtn(txt, pos, size, parent, color)
+    local b = Instance.new("TextButton", parent); b.Size, b.Position, b.BackgroundColor3, b.Text, b.TextColor3, b.Font, b.TextSize = size, pos, color or Color3.fromRGB(40, 40, 45), txt, Color3.new(1,1,1), Enum.Font.GothamBold, 8
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4); return b
+end
+
+-- Kontrol Menu (Save, Load, Place, Slider, Move)
+local SaveBtn = createAestheticBtn("💾 SIMPAN MAP", UDim2.new(0, 0, 0, 0), UDim2.new(0.48, 0, 0, 20), ControlPanel, Color3.fromRGB(100, 80, 20))
+local LoadBtn = createAestheticBtn("📂 LOAD MAP", UDim2.new(0.52, 0, 0, 0), UDim2.new(0.48, 0, 0, 20), ControlPanel, Color3.fromRGB(20, 80, 100))
+local PlaceBtn = createAestheticBtn("✅ PASANG", UDim2.new(0, 0, 0, 38), UDim2.new(1, 0, 0, 20), ControlPanel, Color3.fromRGB(40, 120, 60)); PlaceBtn.Visible = false
+
+local SliderLabel = Instance.new("TextLabel", ControlPanel); SliderLabel.Size, SliderLabel.Position, SliderLabel.BackgroundTransparency, SliderLabel.Text, SliderLabel.TextColor3, SliderLabel.Font, SliderLabel.TextSize = UDim2.new(1, 0, 0, 10), UDim2.new(0, 0, 0, 22), 1, "Ukuran Items: 1.0x", Color3.fromRGB(200, 200, 200), Enum.Font.GothamBold, 8
+local SliderBG = Instance.new("Frame", ControlPanel); SliderBG.Size, SliderBG.Position, SliderBG.BackgroundColor3, SliderBG.BorderSizePixel = UDim2.new(1, 0, 0, 4), UDim2.new(0, 0, 0, 32), Color3.fromRGB(30, 30, 30), 0; Instance.new("UICorner", SliderBG).CornerRadius = UDim.new(1, 0)
+local SliderFill = Instance.new("Frame", SliderBG); SliderFill.Size, SliderFill.BackgroundColor3, SliderFill.BorderSizePixel = UDim2.new(0.183, 0, 1, 0), Color3.fromRGB(80, 150, 200), 0; Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(1, 0)
+local SliderKnob = Instance.new("TextButton", SliderBG); SliderKnob.Size, SliderKnob.Position, SliderKnob.BackgroundColor3, SliderKnob.Text = UDim2.new(0, 8, 0, 8), UDim2.new(0.183, -4, 0.5, -4), Color3.fromRGB(220, 220, 220), ""; Instance.new("UICorner", SliderKnob).CornerRadius = UDim.new(1, 0)
+
+-- Tombol Gerak (Full 12 Arah) - Jarak dan ukuran dirapatkan
+local FwdBtn = createAestheticBtn("MAJU", UDim2.new(0, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local ObjUp = createAestheticBtn("▲ NAIK", UDim2.new(0.34, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local BackBtn = createAestheticBtn("MUNDUR", UDim2.new(0.68, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local ObjLeft = createAestheticBtn("◀ KIRI", UDim2.new(0, 0, 0, 78), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local ObjDown = createAestheticBtn("▼ TURUN", UDim2.new(0.34, 0, 0, 78), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local ObjRight = createAestheticBtn("KANAN ▶", UDim2.new(0.68, 0, 0, 78), UDim2.new(0.32, 0, 0, 16), ControlPanel)
+local RLBtn = createAestheticBtn("⟲ ROT L", UDim2.new(0, 0, 0, 96), UDim2.new(0.48, 0, 0, 16), ControlPanel)
+local RRBtn = createAestheticBtn("ROT R ⟳", UDim2.new(0.52, 0, 0, 96), UDim2.new(0.48, 0, 0, 16), ControlPanel)
+
+-- MENU SLOT (4 SLOT) & KONFIRMASI HAPUS
+local SlotMenu = Instance.new("Frame", buildFrame); SlotMenu.Size, SlotMenu.Position, SlotMenu.BackgroundColor3, SlotMenu.BackgroundTransparency, SlotMenu.Visible, SlotMenu.ZIndex = UDim2.new(1, 0, 1, -25), UDim2.new(0, 0, 0, 25), Color3.fromRGB(15, 15, 15), 0.1, false, 5
+local SlotTitle = Instance.new("TextLabel", SlotMenu); SlotTitle.Size, SlotTitle.Position, SlotTitle.BackgroundTransparency, SlotTitle.ZIndex, SlotTitle.TextColor3, SlotTitle.Font, SlotTitle.TextSize = UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 10), 1, 6, Color3.new(1, 0.8, 0), Enum.Font.GothamBold, 9
+
+local ConfirmMenu = Instance.new("Frame", buildFrame); ConfirmMenu.Size, ConfirmMenu.Position, ConfirmMenu.BackgroundColor3, ConfirmMenu.BackgroundTransparency, ConfirmMenu.Visible, ConfirmMenu.ZIndex = UDim2.new(1, 0, 1, -25), UDim2.new(0, 0, 0, 25), Color3.fromRGB(20, 10, 10), 0.1, false, 7
+local ConfirmTitle = Instance.new("TextLabel", ConfirmMenu); ConfirmTitle.Size, ConfirmTitle.Position, ConfirmTitle.BackgroundTransparency, ConfirmTitle.ZIndex, ConfirmTitle.TextColor3, ConfirmTitle.Font, ConfirmTitle.TextSize = UDim2.new(1, 0, 0, 30), UDim2.new(0, 0, 0, 80), 1, 8, Color3.new(1, 0.3, 0.3), Enum.Font.GothamBold, 9
+local BtnBatal = createAestheticBtn("BATAL", UDim2.new(0.1, 0, 0, 120), UDim2.new(0.35, 0, 0, 30), ConfirmMenu, Color3.fromRGB(60, 60, 60)); BtnBatal.ZIndex = 8
+local BtnHapus = createAestheticBtn("HAPUS", UDim2.new(0.55, 0, 0, 120), UDim2.new(0.35, 0, 0, 30), ConfirmMenu, Color3.fromRGB(180, 40, 40)); BtnHapus.ZIndex = 8
+
+local slotBtns, targetDeleteSlot, actionType = {}, 0, ""
+for i = 1, 4 do
+    local btn = createAestheticBtn("SLOT " .. i, UDim2.new(0.1, 0, 0, 20 + (i*25)), UDim2.new(0.63, 0, 0, 20), SlotMenu, Color3.fromRGB(40, 50, 60)); btn.ZIndex = 6; slotBtns[i] = btn
+    local delBtn = createAestheticBtn("🗑", UDim2.new(0.75, 0, 0, 20 + (i*25)), UDim2.new(0.15, 0, 0, 20), SlotMenu, Color3.fromRGB(150, 40, 40)); delBtn.ZIndex, delBtn.TextSize = 6, 11
+    delBtn.MouseButton1Click:Connect(function() targetDeleteSlot = i; ConfirmTitle.Text = "YAKIN HAPUS MAP SLOT " .. i .. "?"; SlotMenu.Visible = false; ConfirmMenu.Visible = true end)
+end
+local CancelSlotBtn = createAestheticBtn("CANCEL", UDim2.new(0.1, 0, 0, 130), UDim2.new(0.8, 0, 0, 20), SlotMenu, Color3.fromRGB(100, 30, 30)); CancelSlotBtn.ZIndex = 6
+
+BtnBatal.MouseButton1Click:Connect(function() ConfirmMenu.Visible = false; SlotMenu.Visible = true end)
+BtnHapus.MouseButton1Click:Connect(function()
+    local f = "ArchitectSave_" .. game.PlaceId .. "_Slot" .. targetDeleteSlot .. ".json"
+    if isfile and isfile(f) then pcall(function() delfile(f) end) end
+    ConfirmTitle.Text = "SLOT " .. targetDeleteSlot .. " TERHAPUS!"; BtnBatal.Visible, BtnHapus.Visible = false, false
+    task.wait(1.5); BtnBatal.Visible, BtnHapus.Visible = true, true; ConfirmMenu.Visible, SlotMenu.Visible = false, true
+end)
+
+SaveBtn.MouseButton1Click:Connect(function() actionType = "SAVE"; SlotTitle.Text = "PILIH SLOT UNTUK SAVE"; SlotTitle.TextColor3 = Color3.fromRGB(255, 200, 50); SlotMenu.Visible = true end)
+LoadBtn.MouseButton1Click:Connect(function() actionType = "LOAD"; SlotTitle.Text = "PILIH SLOT UNTUK LOAD"; SlotTitle.TextColor3 = Color3.fromRGB(50, 200, 255); SlotMenu.Visible = true end)
+CancelSlotBtn.MouseButton1Click:Connect(function() SlotMenu.Visible = false end)
+
+-- Spawner & Slider Logic
+local spawnedObjects, previewModel, lastSelectedModel = {}, nil, nil
+local activeCategoryTab, selectedButton, currentItemID = nil, nil, ""
+
+local function getGroundPrecision(pos, model)
+    local p = RaycastParams.new(); p.FilterDescendantsInstances = {model, LP.Character}
+    local ray = workspace:Raycast(pos + Vector3.new(0, 100, 0), Vector3.new(0, -300, 0), p)
+    local floorY = ray and ray.Position.Y or (LP.Character.HumanoidRootPart.Position.Y - 3)
+    local bboxCFrame, size = model:GetBoundingBox(); local pivot = model:GetPivot(); local offsetY = pivot.Y - bboxCFrame.Y
+    return Vector3.new(pos.X, floorY + (size.Y/2) + offsetY, pos.Z)
+end
+
+local draggingSlider, minScale, maxScale, currentScale = false, 0.1, 5.0, 1.0
+local function updateSlider(input)
+    local posX = math.clamp(input.Position.X - SliderBG.AbsolutePosition.X, 0, SliderBG.AbsoluteSize.X); local percent = posX / SliderBG.AbsoluteSize.X
+    SliderKnob.Position = UDim2.new(percent, -4, 0.5, -4); SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+    currentScale = math.round((minScale + (percent * (maxScale - minScale))) * 10) / 10; SliderLabel.Text = "Ukuran Items: " .. currentScale .. "x"
+    local target = previewModel or lastSelectedModel; if target then target:ScaleTo(currentScale) end
+end
+local function resetSliderTo(sVal)
+    currentScale = sVal; local percent = (sVal - minScale) / (maxScale - minScale)
+    SliderKnob.Position = UDim2.new(percent, -4, 0.5, -4); SliderFill.Size = UDim2.new(percent, 0, 1, 0); SliderLabel.Text = "Ukuran Items: " .. currentScale .. "x"
+end
+SliderKnob.InputBegan:Connect(function(i) if i.UserInputType.Name:find("MouseButton1") or i.UserInputType.Name:find("Touch") then draggingSlider = true end end)
+SliderBG.InputBegan:Connect(function(i) if i.UserInputType.Name:find("MouseButton1") or i.UserInputType.Name:find("Touch") then draggingSlider = true; updateSlider(i) end end)
+UIS.InputEnded:Connect(function(i) if i.UserInputType.Name:find("MouseButton1") or i.UserInputType.Name:find("Touch") then draggingSlider = false end end)
+UIS.InputChanged:Connect(function(i) if draggingSlider and (i.UserInputType.Name:find("MouseMovement") or i.UserInputType.Name:find("Touch")) then updateSlider(i) end end)
+
+local function loadItems(category)
+    for _, child in ipairs(itemScroll:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+    local count = 0
+    for _, item in ipairs(assetList) do
+        if category == "Semua" or item.Category == category then
+            count = count + 1
+            local r = Instance.new("Frame", itemScroll); r.Size, r.BackgroundTransparency = UDim2.new(0.96, 0, 0, 22), 1
+            local s = createAestheticBtn(item.Name, UDim2.new(0, 0, 0, 0), UDim2.new(0.8, -2, 1, 0), r, Color3.fromRGB(30, 30, 35))
+            local d = createAestheticBtn("🗑", UDim2.new(0.8, 0, 0, 0), UDim2.new(0.2, 0, 1, 0), r, Color3.fromRGB(120, 40, 40))
+            
+            s.MouseButton1Click:Connect(function()
+                if selectedButton then selectedButton.BackgroundColor3 = Color3.fromRGB(30, 30, 35) end
+                selectedButton = s; s.BackgroundColor3 = Color3.fromRGB(50, 80, 120); currentItemID = item.ID
+                if previewModel then previewModel:Destroy() end
+                resetSliderTo(1.0)
+                local success, objs = pcall(function() return game:GetObjects("rbxassetid://" .. item.ID) end)
+                if success and objs[1] then
+                    previewModel = objs[1]; previewModel.Parent = workspace
+                    for _, b in pairs(previewModel:GetDescendants()) do if b:IsA("BasePart") then b.Transparency = 0.5; b.CanCollide = false; b.Anchored = true end end
+                    local root = LP.Character.HumanoidRootPart; local spawnPos = root.Position + (root.CFrame.LookVector * 8)
+                    local groundPos = getGroundPrecision(spawnPos, previewModel)
+                    previewModel:PivotTo(CFrame.new(groundPos) * CFrame.Angles(0, math.rad(root.Orientation.Y), 0))
+                    previewModel:ScaleTo(1.0); PlaceBtn.Visible = true
+                end
+            end)
+            d.MouseButton1Click:Connect(function()
+                local list = spawnedObjects[item.ID]
+                if list and #list > 0 then list[#list]:Destroy(); table.remove(list, #list); lastSelectedModel = list[#list] end
+            end)
+        end
+    end
+    itemScroll.CanvasSize = UDim2.new(0, 0, 0, count * 25)
+end
+
+for i, catName in ipairs(categoriesList) do
+    local btn = createAestheticBtn(catName, UDim2.new(0, 0, 0, 0), UDim2.new(0, 50, 1, 0), buildTabs, (i == 1) and Color3.fromRGB(80, 100, 180) or Color3.fromRGB(30, 30, 35))
+    if i == 1 then activeCategoryTab = btn end
+    btn.MouseButton1Click:Connect(function()
+        if activeCategoryTab then activeCategoryTab.BackgroundColor3 = Color3.fromRGB(30, 30, 35) end
+        activeCategoryTab = btn; btn.BackgroundColor3 = Color3.fromRGB(80, 100, 180); selectedButton = nil; currentItemID = ""; loadItems(catName)
+    end)
+end
+
+for i, btn in ipairs(slotBtns) do
+    btn.MouseButton1Click:Connect(function()
+        local slotFileName = "ArchitectSave_" .. game.PlaceId .. "_Slot" .. i .. ".json"
+        if actionType == "SAVE" then
+            local data = {}
+            for id, list in pairs(spawnedObjects) do for _, obj in pairs(list) do table.insert(data, {AssetID = id, Pos = {obj:GetPivot():GetComponents()}, Scale = obj:GetScale()}) end end
+            if writefile then writefile(slotFileName, HttpService:JSONEncode(data)) end
+            SlotMenu.Visible = false; SaveBtn.Text = "SAVED"; SaveBtn.BackgroundColor3 = Color3.fromRGB(30, 150, 30); task.wait(1.5); SaveBtn.Text = "SIMPAN MAP"; SaveBtn.BackgroundColor3 = Color3.fromRGB(100, 80, 20)
+        elseif actionType == "LOAD" then
+            if not isfile or not isfile(slotFileName) then 
+                btn.Text = "KOSONG!"; btn.BackgroundColor3 = Color3.fromRGB(150, 30, 30); task.wait(1); btn.Text = "SLOT " .. i; btn.BackgroundColor3 = Color3.fromRGB(40, 50, 60); return 
+            end
+            local data = HttpService:JSONDecode(readfile(slotFileName))
+            for _, info in pairs(data) do
+                local success, objs = pcall(function() return game:GetObjects("rbxassetid://" .. info.AssetID) end)
+                if success and objs[1] then
+                    local model = objs[1]; model.Parent = workspace; model:PivotTo(CFrame.new(unpack(info.Pos)))
+                    if info.Scale then model:ScaleTo(info.Scale) end
+                    for _, d in pairs(model:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true; d.CanCollide = true end end
+                    if not spawnedObjects[info.AssetID] then spawnedObjects[info.AssetID] = {} end
+                    table.insert(spawnedObjects[info.AssetID], model); lastSelectedModel = model
+                end
+            end
+            SlotMenu.Visible = false; LoadBtn.Text = "LOADED!"; LoadBtn.BackgroundColor3 = Color3.fromRGB(30, 150, 30); task.wait(1.5); LoadBtn.Text = "FILE MAP KAMU"; LoadBtn.BackgroundColor3 = Color3.fromRGB(20, 80, 100)
+        end
+    end)
+end
+
+PlaceBtn.MouseButton1Click:Connect(function()
+    if previewModel and currentItemID ~= "" then
+        for _, d in pairs(previewModel:GetDescendants()) do if d:IsA("BasePart") then d.Transparency = 0; d.CanCollide = true; d.Anchored = true end end
+        if not spawnedObjects[currentItemID] then spawnedObjects[currentItemID] = {} end
+        table.insert(spawnedObjects[currentItemID], previewModel); lastSelectedModel = previewModel; previewModel = nil; PlaceBtn.Visible = false
+    end
+end)
+
+local function moveMod(act)
+    local t = previewModel or lastSelectedModel; if not t then return end
+    local cf, s, v_s = t:GetPivot(), 2.5, 1
+    if act == "F" then t:PivotTo(cf * CFrame.new(0,0,-s)) elseif act == "B" then t:PivotTo(cf * CFrame.new(0,0,s))
+    elseif act == "L" then t:PivotTo(cf * CFrame.new(-s,0,0)) elseif act == "R" then t:PivotTo(cf * CFrame.new(s,0,0))
+    elseif act == "U" then t:PivotTo(cf * CFrame.new(0,v_s,0)) elseif act == "D" then t:PivotTo(cf * CFrame.new(0,-v_s,0))
+    elseif act == "RL" then t:PivotTo(cf * CFrame.Angles(0,math.rad(15),0)) elseif act == "RR" then t:PivotTo(cf * CFrame.Angles(0,math.rad(-15),0)) end
+end
+
+ObjUp.MouseButton1Click:Connect(function() moveMod("U") end); ObjDown.MouseButton1Click:Connect(function() moveMod("D") end)
+ObjLeft.MouseButton1Click:Connect(function() moveMod("L") end); ObjRight.MouseButton1Click:Connect(function() moveMod("R") end)
+FwdBtn.MouseButton1Click:Connect(function() moveMod("F") end); BackBtn.MouseButton1Click:Connect(function() moveMod("B") end)
+RLBtn.MouseButton1Click:Connect(function() moveMod("RL") end); RRBtn.MouseButton1Click:Connect(function() moveMod("RR") end)
+
+loadItems("Semua")
+
+-- ================= TAB 3: COPY AVA (FULL FITUR) =================
+local Clones, spd, dist = {}, 16, 5
+local charScale, cloneScale = 1, 1
+local isAW, isFol, isUL, isSet = false, false, false, false
+local selectedCloneData = nil
+
+-- [1] KOLOM INPUT & DROPDOWN USERNAME
+local NameInput = Instance.new("TextBox", copyFrame) 
+NameInput.Size = UDim2.new(1, -30, 0, 26) 
+NameInput.Position = UDim2.new(0, 0, 0, 0) 
+NameInput.PlaceholderText = "Username..." 
+NameInput.PlaceholderColor3 = Color3.fromRGB(150,150,170) 
+NameInput.TextColor3 = Color3.new(1,1,1) 
+NameInput.Font = Enum.Font.GothamSemibold 
+NameInput.TextSize = 11 
+NameInput.BackgroundColor3 = Color3.fromRGB(20,20,35) 
+NameInput.Text = "" 
+NameInput.ClearTextOnFocus = false
+Instance.new("UICorner", NameInput).CornerRadius = UDim.new(0,6) 
+Instance.new("UIStroke", NameInput).Color = Color3.fromRGB(70,70,120)
+
+local UserToggle = Instance.new("TextButton", copyFrame) 
+UserToggle.Size = UDim2.new(0, 26, 0, 26) 
+UserToggle.Position = UDim2.new(1, -26, 0, 0) 
+UserToggle.Text = "▼" 
+UserToggle.Font = Enum.Font.GothamBold 
+UserToggle.TextSize = 10 
+UserToggle.TextColor3 = Color3.new(1,1,1) 
+UserToggle.BackgroundColor3 = Color3.fromRGB(30,30,50)
+Instance.new("UICorner", UserToggle).CornerRadius = UDim.new(0,6) 
+Instance.new("UIStroke", UserToggle).Color = Color3.fromRGB(70,70,120)
+
+local UserScroll = Instance.new("ScrollingFrame", copyFrame) 
+UserScroll.Size = UDim2.new(1, 0, 0, 100) 
+UserScroll.Position = UDim2.new(0, 0, 0, 30) 
+UserScroll.BackgroundColor3 = Color3.fromRGB(15,15,25) 
+UserScroll.BorderSizePixel = 0 
+UserScroll.ScrollBarThickness = 3 
+UserScroll.Visible = false
+Instance.new("UICorner", UserScroll).CornerRadius = UDim.new(0,6) 
+local UIList = Instance.new("UIListLayout", UserScroll)
+UIList.Padding = UDim.new(0,3)
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local uBtns, defC, actC = {}, Color3.fromRGB(30,30,45), Color3.fromRGB(46,204,113)
+local pinnedUsers = {}
+
+for i, n in ipairs(listUsers) do
+    local container = Instance.new("Frame", UserScroll)
+    container.Size = UDim2.new(1,-6,0,20)
+    container.BackgroundTransparency = 1
+    container.LayoutOrder = i 
+    
+    local b = Instance.new("TextButton", container) 
+    b.Size = UDim2.new(1,-24,1,0)
+    b.Text = "  "..n 
+    b.TextXAlignment = Enum.TextXAlignment.Left 
+    b.Font = Enum.Font.Gotham 
+    b.TextSize = 10 
+    b.TextColor3 = Color3.new(1,1,1) 
+    b.BackgroundColor3 = defC
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,4)
+    
+    local starBtn = Instance.new("TextButton", container)
+    starBtn.Size = UDim2.new(0,20,0,20)
+    starBtn.Position = UDim2.new(1,-20,0,0)
+    starBtn.Text = "☆"
+    starBtn.Font = Enum.Font.GothamBold
+    starBtn.TextSize = 14
+    starBtn.TextColor3 = Color3.fromRGB(150,150,170)
+    starBtn.BackgroundTransparency = 1
+    
+    b.MouseButton1Click:Connect(function() 
+        NameInput.Text = n 
+        for _, v in pairs(uBtns) do v.b.BackgroundColor3 = defC end 
+        b.BackgroundColor3 = actC 
+    end)
+    
+    starBtn.MouseButton1Click:Connect(function()
+        pinnedUsers[n] = not pinnedUsers[n]
+        if pinnedUsers[n] then
+            starBtn.Text = "★"
+            starBtn.TextColor3 = Color3.fromRGB(241,196,15) 
+            container.LayoutOrder = i - 1000 
+        else
+            starBtn.Text = "☆"
+            starBtn.TextColor3 = Color3.fromRGB(150,150,170)
+            container.LayoutOrder = i 
+        end
+    end)
+    
+    table.insert(uBtns, {b=b, n=n})
+end
+UserScroll.CanvasSize = UDim2.new(0,0,0,#listUsers*23)
+
+NameInput:GetPropertyChangedSignal("Text"):Connect(function() 
+    for _, v in pairs(uBtns) do 
+        v.b.BackgroundColor3 = (v.n:match(NameInput.Text) and NameInput.Text~="") and actC or defC 
+    end 
+end)
+
+-- [2] TOMBOL FITUR & SETTING
+local redC = ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(231,76,60)), ColorSequenceKeypoint.new(1,Color3.fromRGB(192,57,43))})
+local grnC = ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(46,204,113)), ColorSequenceKeypoint.new(1,Color3.fromRGB(39,174,96))})
+local bluC = ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(52,152,219)), ColorSequenceKeypoint.new(1,Color3.fromRGB(41,128,185))})
+
+local function makeBtn(p, s, t, gc)
+    local f = Instance.new("Frame", p) f.Size = s f.BackgroundColor3 = Color3.new(1,1,1) Instance.new("UICorner", f).CornerRadius = UDim.new(0,6)
+    local g = Instance.new("UIGradient", f) g.Color = gc
+    local b = Instance.new("TextButton", f) b.Size = UDim2.new(1,0,1,0) b.BackgroundTransparency = 1 b.Text = t b.Font = Enum.Font.GothamBold b.TextSize = 10 b.TextColor3 = Color3.new(1,1,1)
+    return f, g, b
+end
+
+local AWFrame, AWGrad, AWBtn = makeBtn(copyFrame, UDim2.new(1,0,0,26), "AUTO JALAN: OFF", redC)
+local FolFrame, FolGrad, FolBtn = makeBtn(copyFrame, UDim2.new(1,0,0,26), "MENGIKUTI KITA: OFF", redC)
+
+local DistToggle = Instance.new("TextButton", copyFrame) DistToggle.Size = UDim2.new(1,0,0,16) DistToggle.BackgroundTransparency = 1 DistToggle.Text = "↓ Jarak ↓" DistToggle.Font = Enum.Font.GothamBold DistToggle.TextColor3 = Color3.fromRGB(150,150,180) DistToggle.TextSize = 10
+local DistFrame = Instance.new("Frame", copyFrame) DistFrame.Size = UDim2.new(1,0,0,26) DistFrame.BackgroundTransparency = 1 DistFrame.Visible = false 
+
+local DistMinus = Instance.new("TextButton", DistFrame) DistMinus.Size = UDim2.new(0,30,0,26) DistMinus.Text = "-" DistMinus.Font = Enum.Font.GothamBlack DistMinus.TextSize = 14 DistMinus.TextColor3 = Color3.new(1,1,1) DistMinus.BackgroundColor3 = Color3.fromRGB(231,76,60) Instance.new("UICorner", DistMinus).CornerRadius = UDim.new(0,6)
+local DistPlus = Instance.new("TextButton", DistFrame) DistPlus.Size = UDim2.new(0,30,0,26) DistPlus.Position = UDim2.new(1,-30,0,0) DistPlus.Text = "+" DistPlus.Font = Enum.Font.GothamBlack DistPlus.TextSize = 14 DistPlus.TextColor3 = Color3.new(1,1,1) DistPlus.BackgroundColor3 = Color3.fromRGB(46,204,113) Instance.new("UICorner", DistPlus).CornerRadius = UDim.new(0,6)
+local DistLabel = Instance.new("TextLabel", DistFrame) DistLabel.Size = UDim2.new(1,-68,1,0) DistLabel.Position = UDim2.new(0,34,0,0) DistLabel.Text = "Jarak: "..dist DistLabel.Font = Enum.Font.GothamBold DistLabel.TextSize = 11 DistLabel.TextColor3 = Color3.new(1,1,1) DistLabel.BackgroundColor3 = Color3.fromRGB(30,30,50) Instance.new("UICorner", DistLabel).CornerRadius = UDim.new(0,6) Instance.new("UIStroke", DistLabel).Color = Color3.fromRGB(70,70,120)
+
+local SpeedLabel = Instance.new("TextLabel", copyFrame) SpeedLabel.Size = UDim2.new(1,0,0,16) SpeedLabel.BackgroundTransparency = 1 SpeedLabel.Text = "Speed: "..spd SpeedLabel.TextColor3 = Color3.new(1,1,1) SpeedLabel.Font = Enum.Font.GothamBold SpeedLabel.TextSize = 10
+local SpeedTrack = Instance.new("Frame", copyFrame) SpeedTrack.Size = UDim2.new(1,0,0,6) SpeedTrack.BackgroundColor3 = Color3.fromRGB(30,30,50) Instance.new("UICorner", SpeedTrack).CornerRadius = UDim.new(1,0)
+local SpeedFill = Instance.new("Frame", SpeedTrack) SpeedFill.Size = UDim2.new(16/100,0,1,0) SpeedFill.BackgroundColor3 = Color3.new(1,1,1) Instance.new("UICorner", SpeedFill).CornerRadius = UDim.new(1,0) Instance.new("UIGradient", SpeedFill).Color = bluC
+local SpeedKnob = Instance.new("TextButton", SpeedTrack) SpeedKnob.Size = UDim2.new(0,14,0,14) SpeedKnob.Position = UDim2.new(16/100,-7,0.5,-7) SpeedKnob.BackgroundColor3 = Color3.new(1,1,1) SpeedKnob.Text = "" Instance.new("UICorner", SpeedKnob).CornerRadius = UDim.new(1,0)
+
+local PakaiFrame, PakaiGrad, PakaiBtn = makeBtn(copyFrame, UDim2.new(0.48,0,0,28), "PAKAI", ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(138,35,135)), ColorSequenceKeypoint.new(1,Color3.fromRGB(233,64,87))}))
+local DupFrame, DupGrad, DupBtn = makeBtn(copyFrame, UDim2.new(0.48,0,0,28), "DUPLIKAT", ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(15,32,39)), ColorSequenceKeypoint.new(1,Color3.fromRGB(44,83,100))}))
+
+local ScaleTitle = Instance.new("TextLabel", copyFrame) ScaleTitle.Size = UDim2.new(1,0,0,16) ScaleTitle.BackgroundTransparency = 1 ScaleTitle.Text = "Perbesar Caracter" ScaleTitle.TextColor3 = Color3.fromRGB(150,150,180) ScaleTitle.Font = Enum.Font.GothamBold ScaleTitle.TextSize = 10
+local ScaleFrame = Instance.new("Frame", copyFrame) ScaleFrame.Size = UDim2.new(1,0,0,26) ScaleFrame.BackgroundTransparency = 1 
+
+local ScaleMinus = Instance.new("TextButton", ScaleFrame) ScaleMinus.Size = UDim2.new(0,30,0,26) ScaleMinus.Text = "-" ScaleMinus.Font = Enum.Font.GothamBlack ScaleMinus.TextSize = 14 ScaleMinus.TextColor3 = Color3.new(1,1,1) ScaleMinus.BackgroundColor3 = Color3.fromRGB(243,156,18) Instance.new("UICorner", ScaleMinus).CornerRadius = UDim.new(0,6)
+local ScalePlus = Instance.new("TextButton", ScaleFrame) ScalePlus.Size = UDim2.new(0,30,0,26) ScalePlus.Position = UDim2.new(1,-30,0,0) ScalePlus.Text = "+" ScalePlus.Font = Enum.Font.GothamBlack ScalePlus.TextSize = 14 ScalePlus.TextColor3 = Color3.new(1,1,1) ScalePlus.BackgroundColor3 = Color3.fromRGB(142,68,173) Instance.new("UICorner", ScalePlus).CornerRadius = UDim.new(0,6)
+local ScaleLabel = Instance.new("TextLabel", ScaleFrame) ScaleLabel.Size = UDim2.new(1,-68,1,0) ScaleLabel.Position = UDim2.new(0,34,0,0) ScaleLabel.Text = "SKALA" ScaleLabel.Font = Enum.Font.GothamBold ScaleLabel.TextSize = 11 ScaleLabel.TextColor3 = Color3.new(1,1,1) ScaleLabel.BackgroundColor3 = Color3.fromRGB(30,30,50) Instance.new("UICorner", ScaleLabel).CornerRadius = UDim.new(0,6) Instance.new("UIStroke", ScaleLabel).Color = Color3.fromRGB(70,70,120)
+
+local CloneScaleTitle = Instance.new("TextLabel", copyFrame) CloneScaleTitle.Size = UDim2.new(1,0,0,16) CloneScaleTitle.BackgroundTransparency = 1 CloneScaleTitle.Text = "Perbesar Clone [Ketuk]" CloneScaleTitle.TextColor3 = Color3.fromRGB(46,204,113) CloneScaleTitle.Font = Enum.Font.GothamBold CloneScaleTitle.TextSize = 10
+local CloneScaleFrame = Instance.new("Frame", copyFrame) CloneScaleFrame.Size = UDim2.new(1,0,0,26) CloneScaleFrame.BackgroundTransparency = 1 
+
+local CloneScaleMinus = Instance.new("TextButton", CloneScaleFrame) CloneScaleMinus.Size = UDim2.new(0,30,0,26) CloneScaleMinus.Text = "-" CloneScaleMinus.Font = Enum.Font.GothamBlack CloneScaleMinus.TextSize = 14 CloneScaleMinus.TextColor3 = Color3.new(1,1,1) CloneScaleMinus.BackgroundColor3 = Color3.fromRGB(231,76,60) Instance.new("UICorner", CloneScaleMinus).CornerRadius = UDim.new(0,6)
+local CloneScalePlus = Instance.new("TextButton", CloneScaleFrame) CloneScalePlus.Size = UDim2.new(0,30,0,26) CloneScalePlus.Position = UDim2.new(1,-30,0,0) CloneScalePlus.Text = "+" CloneScalePlus.Font = Enum.Font.GothamBlack CloneScalePlus.TextSize = 14 CloneScalePlus.TextColor3 = Color3.new(1,1,1) CloneScalePlus.BackgroundColor3 = Color3.fromRGB(52,152,219) Instance.new("UICorner", CloneScalePlus).CornerRadius = UDim.new(0,6)
+local CloneScaleLabel = Instance.new("TextLabel", CloneScaleFrame) CloneScaleLabel.Size = UDim2.new(1,-68,1,0) CloneScaleLabel.Position = UDim2.new(0,34,0,0) CloneScaleLabel.Text = "SKALA" CloneScaleLabel.Font = Enum.Font.GothamBold CloneScaleLabel.TextSize = 11 CloneScaleLabel.TextColor3 = Color3.new(1,1,1) CloneScaleLabel.BackgroundColor3 = Color3.fromRGB(30,30,50) Instance.new("UICorner", CloneScaleLabel).CornerRadius = UDim.new(0,6) Instance.new("UIStroke", CloneScaleLabel).Color = Color3.fromRGB(70,70,120)
+
+-- UPDATE LAYOUT UNTUK MANUAL POSITIONING DI DALAM TAB
+local function UpdateLayout()
+    local y = 32
+    UserScroll.Visible = isUL 
+    if isUL then y = y + 105 end
+    
+    AWFrame.Position = UDim2.new(0,0,0,y) y=y+30 
+    FolFrame.Position = UDim2.new(0,0,0,y) y=y+30 
+    DistToggle.Position = UDim2.new(0,0,0,y) y=y+20
+    
+    DistFrame.Visible = isSet 
+    if isSet then DistFrame.Position = UDim2.new(0,0,0,y) y=y+30 end
+    
+    SpeedLabel.Position = UDim2.new(0,0,0,y) y=y+20 
+    SpeedTrack.Position = UDim2.new(0,0,0,y) y=y+15 
+    PakaiFrame.Position = UDim2.new(0,0,0,y) 
+    DupFrame.Position = UDim2.new(0.52,0,0,y) y=y+34
+    
+    ScaleTitle.Position = UDim2.new(0,0,0,y) y=y+18 
+    ScaleFrame.Position = UDim2.new(0,0,0,y) y=y+32
+    
+    CloneScaleTitle.Position = UDim2.new(0,0,0,y) y=y+18 
+    CloneScaleFrame.Position = UDim2.new(0,0,0,y) y=y+32
+    
+    copyFrame.CanvasSize = UDim2.new(0, 0, 0, y + 10)
+end 
+UpdateLayout()
+
+UserToggle.MouseButton1Click:Connect(function() isUL = not isUL UserToggle.Text = isUL and "▲" or "▼" UpdateLayout() end)
+DistToggle.MouseButton1Click:Connect(function() isSet = not isSet DistToggle.Text = isSet and "↑ Jarak ↑" or "↓ Jarak ↓" UpdateLayout() end)
+DistMinus.MouseButton1Click:Connect(function() if dist>2 then dist=dist-1 DistLabel.Text="Jarak: "..dist end end)
+DistPlus.MouseButton1Click:Connect(function() if dist<50 then dist=dist+1 DistLabel.Text="Jarak: "..dist end end)
+
+-- [3] LOGIKA GESER SPEED & EVENT TOMBOL
+local isDragAva = false
+SpeedKnob.InputBegan:Connect(function(i) if i.UserInputType.Name:find("MouseButton1") or i.UserInputType.Name:find("Touch") then isDragAva = true end end)
+UIS.InputEnded:Connect(function(i) if i.UserInputType.Name:find("MouseButton1") or i.UserInputType.Name:find("Touch") then isDragAva = false end end)
+RS.Heartbeat:Connect(function()
+    if isDragAva then
+        local pct = math.clamp((UIS:GetMouseLocation().X - SpeedTrack.AbsolutePosition.X) / SpeedTrack.AbsoluteSize.X, 0, 1)
+        SpeedKnob.Position = UDim2.new(pct,-7,0.5,-7) SpeedFill.Size = UDim2.new(pct,0,1,0) spd = math.floor(pct*100) SpeedLabel.Text = "Speed: "..spd
+        for _, d in pairs(Clones) do if d.h then d.h.WalkSpeed = spd end end
+    end
+end)
+
+AWBtn.MouseButton1Click:Connect(function() isAW = not isAW if isAW then isFol=false FolBtn.Text="MENGIKUTI KITA: OFF" FolGrad.Color=redC AWBtn.Text="AUTO JALAN: ON" AWGrad.Color=grnC else AWBtn.Text="AUTO JALAN: OFF" AWGrad.Color=redC end end)
+FolBtn.MouseButton1Click:Connect(function() isFol = not isFol if isFol then isAW=false AWBtn.Text="AUTO JALAN: OFF" AWGrad.Color=redC FolBtn.Text="MENGIKUTI KITA: ON" FolGrad.Color=bluC else FolBtn.Text="MENGIKUTI KITA: OFF" FolGrad.Color=redC end end)
+
+local function ApplyScale(character, scaleNum)
+    local hum = character and character:FindFirstChild("Humanoid")
+    if hum then
+        for _, sName in ipairs({"BodyHeightScale", "BodyWidthScale", "BodyDepthScale", "HeadScale"}) do
+            local sVal = hum:FindFirstChild(sName)
+            if sVal and sVal:IsA("NumberValue") then sVal.Value = scaleNum end
+        end
+    end
+end
+
+ScaleMinus.MouseButton1Click:Connect(function() if charScale > 0.5 then charScale = charScale - 0.5 ApplyScale(LP.Character, charScale) end end)
+ScalePlus.MouseButton1Click:Connect(function() if charScale < 10 then charScale = charScale + 0.5 ApplyScale(LP.Character, charScale) end end)
+LP.CharacterAdded:Connect(function(newChar) task.wait(0.5) ApplyScale(newChar, charScale) end)
+
+Mouse.Button1Down:Connect(function()
+    local target = Mouse.Target
+    if copyFrame.Visible and target and target.Parent and target.Parent:IsA("Model") and target.Parent:FindFirstChild("Humanoid") then
+        local found = false
+        for _, d in pairs(Clones) do
+            if d.m == target.Parent then
+                selectedCloneData = d
+                CloneScaleTitle.Text = "Clone: " .. (d.m.Name:sub(1,10))
+                local sVal = d.h:FindFirstChild("BodyHeightScale")
+                cloneScale = sVal and sVal.Value or 1
+                found = true
+                break
+            end
+        end
+        if not found and target.Parent ~= LP.Character then
+            selectedCloneData = nil
+            CloneScaleTitle.Text = "Perbesar Clone [Ketuk]"
+        end
+    end
+end)
+
+CloneScaleMinus.MouseButton1Click:Connect(function() if selectedCloneData and selectedCloneData.m and cloneScale > 0.5 then cloneScale = cloneScale - 0.5 ApplyScale(selectedCloneData.m, cloneScale) end end)
+CloneScalePlus.MouseButton1Click:Connect(function() if selectedCloneData and selectedCloneData.m and cloneScale < 10 then cloneScale = cloneScale + 0.5 ApplyScale(selectedCloneData.m, cloneScale) end end)
+
+PakaiBtn.MouseButton1Click:Connect(function()
+    local t = NameInput.Text if t=="" then return end PakaiBtn.Text="..."
+    task.spawn(function()
+        local s, id = pcall(function() return P:GetUserIdFromNameAsync(t) end)
+        if s and id then
+            local mc = LP.Character
+            if mc and mc:FindFirstChild("HumanoidRootPart") then
+                local s2, dm = pcall(function() return P:CreateHumanoidModelFromUserId(id) end)
+                if s2 and dm then
+                    local ra, da = mc:FindFirstChild("Animate"), dm:FindFirstChild("Animate") local fa = ra and ra:Clone() or nil
+                    if fa then fa.Disabled=true if da then for _,v in pairs(fa:GetChildren()) do v:Destroy() end for _,v in pairs(da:GetChildren()) do v:Clone().Parent=fa end da:Destroy() end end
+                    local nh = dm:WaitForChild("Humanoid") if not nh:FindFirstChild("Animator") then Instance.new("Animator",nh) end
+                    nh.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None dm:SetPrimaryPartCFrame(mc.HumanoidRootPart.CFrame) dm.Name=LP.Name dm.Parent=W LP.Character=dm
+                    if W.CurrentCamera then W.CurrentCamera.CameraSubject=nh end
+                    if fa then fa.Parent=dm task.wait(0.2) fa.Disabled=false end nh:ChangeState(Enum.HumanoidStateType.Landed) mc:Destroy() 
+                    ApplyScale(dm, charScale) PakaiBtn.Text="BERHASIL"
+                else PakaiBtn.Text="GAGAL" end
+            else PakaiBtn.Text="TUNGGU" end
+        else PakaiBtn.Text="SALAH" end task.wait(2) PakaiBtn.Text="PAKAI"
+    end)
+end)
+
+DupBtn.MouseButton1Click:Connect(function()
+    local t = NameInput.Text if t=="" then return end DupBtn.Text="..."
+    task.spawn(function()
+        local s, id = pcall(function() return P:GetUserIdFromNameAsync(t) end)
+        if s and id then
+            local s2, dm = pcall(function() return P:CreateHumanoidModelFromUserId(id) end)
+            if s2 and dm then
+                local h, rp = dm:WaitForChild("Humanoid"), dm:WaitForChild("HumanoidRootPart") h.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None h.WalkSpeed = spd
+                for _,p in pairs(dm:GetDescendants()) do if p:IsA("BasePart") then p.Anchored=false end end
+                local mc = LP.Character dm:SetPrimaryPartCFrame((mc and mc:FindFirstChild("HumanoidRootPart")) and mc.HumanoidRootPart.CFrame*CFrame.new(0,0,-5) or CFrame.new(0,10,0)) dm.Name=t dm.Parent=W
+                local anm = h:FindFirstChild("Animator") or Instance.new("Animator",h)
+                local aS = dm:FindFirstChild("Animate") if aS then aS.Disabled=true end
+                local function fA(n) if aS and aS:FindFirstChild(n) then for _,v in pairs(aS[n]:GetDescendants()) do if v:IsA("Animation") and v.AnimationId~="" then return v end end end return nil end
+                local iT, wT = fA("idle"), fA("walk") or fA("run")
+                iT = iT and anm:LoadAnimation(iT) or nil wT = wT and anm:LoadAnimation(wT) or nil
+                if iT then iT.Looped=true iT:Play() end if wT then wT.Looped=true end
+                table.insert(Clones, {m=dm, h=h, r=rp, iT=iT, wT=wT, w=false}) DupBtn.Text="BERHASIL"
+            else DupBtn.Text="GAGAL" end
+        else DupBtn.Text="SALAH" end task.wait(2) DupBtn.Text="DUPLIKAT"
+    end)
+end)
+
+RS.Heartbeat:Connect(function()
+    local mc = LP.Character local mr = mc and mc:FindFirstChild("HumanoidRootPart")
+    for i = #Clones, 1, -1 do
+        local d = Clones[i]
+        if not d.m or not d.m.Parent or not d.h or d.h.Health<=0 then 
+            if selectedCloneData == d then selectedCloneData = nil end 
+            table.remove(Clones, i); continue 
+        end
+        local sW = false
+        if isFol and mr then d.h:MoveTo((mr.CFrame*CFrame.new(0,0,dist*i)).Position) sW = Vector3.new(d.r.AssemblyLinearVelocity.X, 0, d.r.AssemblyLinearVelocity.Z).Magnitude > 0.5
+        elseif isAW then d.h:MoveTo(d.r.Position + d.r.CFrame.LookVector*10) sW = true
+        else if d.w then d.h:MoveTo(d.r.Position) end sW = false end
+        if sW and not d.w then d.w=true if d.iT then d.iT:Stop() end if d.wT then d.wT:Play() end
+        elseif not sW and d.w then d.w=false if d.wT then d.wT:Stop() end if d.iT then d.iT:Play() end end
+    end
+end)
+
+-- ================= GLOBAL DRAG & MINIMIZE =================
+local isMinimized, dragging, dragInput, dragStart, startPos = false
+minBtn.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	local targetSize = isMinimized and UDim2.new(0, 190, 0, 30) or UDim2.new(0, 190, 0, 280)
+    tabContainer.Visible, skyFrame.Visible, buildFrame.Visible, copyFrame.Visible = not isMinimized, (not isMinimized and tabSkyBtn.BackgroundColor3 == Color3.fromRGB(80, 100, 180)), (not isMinimized and tabBuildBtn.BackgroundColor3 == Color3.fromRGB(80, 100, 180)), (not isMinimized and tabCopyBtn.BackgroundColor3 == Color3.fromRGB(80, 100, 180))
+	TS:Create(bg, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = targetSize}):Play()
+end)
+
+topbar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true; dragStart, startPos = input.Position, bg.Position
+		input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+	end
+end)
+topbar.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end end)
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		bg.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		-- Mengikuti posisi background menu (sistem toggle disamping UI)
+		openBtn.Position = UDim2.new(bg.Position.X.Scale, bg.Position.X.Offset - 90, bg.Position.Y.Scale, bg.Position.Y.Offset)
+	end
+end)

@@ -1,0 +1,1951 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local DigSpotsFolder = workspace:FindFirstChild("DigSpots")
+
+if PlayerGui:FindFirstChild("UnifiedTeleportHub") then
+    PlayerGui.UnifiedTeleportHub:Destroy()
+end
+if game:GetService("CoreGui"):FindFirstChild("UnifiedTeleportHub") then
+    game:GetService("CoreGui").UnifiedTeleportHub:Destroy()
+end
+
+-- ========================================================
+-- 1. DEFINISI WARNA TEMA 
+-- ========================================================
+local WARNA_PINK_TUA = Color3.fromRGB(230, 20, 120) 
+local WARNA_UNGU = Color3.fromRGB(140, 20, 230)     
+local WARNA_BIRU = Color3.fromRGB(20, 120, 230)     
+local WARNA_BG = Color3.fromRGB(20, 15, 30)
+local TELUR_BEBEK_TUA = Color3.fromRGB(150, 180, 180)
+local TOSCA = Color3.fromRGB(64, 224, 208)
+
+local ThemeMonster = {
+    ToscaBg = Color3.fromRGB(32, 178, 170),    
+    ToscaDark = Color3.fromRGB(0, 128, 128),   
+    YellowAcc = Color3.fromRGB(255, 215, 0),   
+    YellowDark = Color3.fromRGB(200, 170, 0),  
+    PinkSoft = Color3.fromRGB(255, 170, 210),  
+    PinkNeon = Color3.fromRGB(255, 50, 150),   
+    TextDark = Color3.fromRGB(30, 30, 30),     
+    TextLight = Color3.fromRGB(255, 255, 255)  
+}
+
+-- ========================================================
+-- 2. MAIN GUI & TOMBOL UTAMA
+-- ========================================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "UnifiedTeleportHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+local success = pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end)
+if not success then ScreenGui.Parent = PlayerGui end
+
+local MainMenuButton = Instance.new("TextButton")
+MainMenuButton.Size = UDim2.new(0, 160, 0, 42)
+MainMenuButton.Position = UDim2.new(0, 20, 0.4, 0)
+MainMenuButton.BackgroundColor3 = WARNA_PINK_TUA 
+MainMenuButton.Text = "📜 Pilih Lokasi Sekop²"
+MainMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainMenuButton.Font = Enum.Font.Jura
+MainMenuButton.TextSize = 15
+MainMenuButton.Active = true
+MainMenuButton.Draggable = true
+MainMenuButton.Parent = ScreenGui
+Instance.new("UICorner", MainMenuButton).CornerRadius = UDim.new(0, 8)
+
+-- ========================================================
+-- 3. MENU PILIHAN (HUB - DENGAN 7 TOMBOL & SCROLL HINT) 
+-- ========================================================
+local SelectionFrame = Instance.new("ScrollingFrame")
+SelectionFrame.Size = UDim2.new(0, 160, 0, 0)
+SelectionFrame.Position = UDim2.new(0, 0, 1, 8)
+SelectionFrame.BackgroundColor3 = WARNA_BG
+SelectionFrame.Visible = false
+SelectionFrame.ClipsDescendants = true
+SelectionFrame.ScrollBarThickness = 3
+SelectionFrame.CanvasSize = UDim2.new(0, 0, 0, 255) 
+SelectionFrame.Parent = MainMenuButton
+Instance.new("UICorner", SelectionFrame).CornerRadius = UDim.new(0, 8)
+
+local SelectionLayout = Instance.new("UIListLayout", SelectionFrame)
+SelectionLayout.Padding = UDim.new(0, 5)
+SelectionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SelectionLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local SelectionPadding = Instance.new("UIPadding", SelectionFrame)
+SelectionPadding.PaddingTop = UDim.new(0, 5)
+SelectionPadding.PaddingBottom = UDim.new(0, 5)
+
+-- INDIKATOR SCROLL KE BAWAH
+local ScrollHint = Instance.new("TextLabel", MainMenuButton)
+ScrollHint.Size = UDim2.new(1, 0, 0, 15)
+ScrollHint.Position = UDim2.new(0, 0, 1, 155) 
+ScrollHint.BackgroundTransparency = 1
+ScrollHint.Text = "↓ scroll ke bawah ↓"
+ScrollHint.TextColor3 = Color3.fromRGB(220, 220, 220)
+ScrollHint.Font = Enum.Font.GothamMedium
+ScrollHint.TextSize = 9
+ScrollHint.Visible = false
+
+task.spawn(function()
+    while task.wait(0.6) do
+        if ScrollHint.Parent then
+            ScrollHint.TextTransparency = (ScrollHint.TextTransparency == 0) and 0.5 or 0
+        end
+    end
+end)
+
+local BtnMenuGalian = Instance.new("TextButton", SelectionFrame)
+BtnMenuGalian.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuGalian.BackgroundColor3 = WARNA_PINK_TUA
+BtnMenuGalian.Text = "Mencari Lokasi Items"
+BtnMenuGalian.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMenuGalian.Font = Enum.Font.Ubuntu
+BtnMenuGalian.TextSize = 13
+BtnMenuGalian.LayoutOrder = 1
+Instance.new("UICorner", BtnMenuGalian).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuAmbilItems = Instance.new("TextButton", SelectionFrame)
+BtnMenuAmbilItems.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuAmbilItems.BackgroundColor3 = TOSCA
+BtnMenuAmbilItems.Text = "Ambil Items"
+BtnMenuAmbilItems.TextColor3 = Color3.fromRGB(20, 50, 50)
+BtnMenuAmbilItems.Font = Enum.Font.Ubuntu
+BtnMenuAmbilItems.TextSize = 13
+BtnMenuAmbilItems.LayoutOrder = 2
+Instance.new("UICorner", BtnMenuAmbilItems).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuPlayer = Instance.new("TextButton", SelectionFrame)
+BtnMenuPlayer.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuPlayer.BackgroundColor3 = WARNA_BIRU
+BtnMenuPlayer.Text = "Teleport Ke Player"
+BtnMenuPlayer.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMenuPlayer.Font = Enum.Font.Ubuntu
+BtnMenuPlayer.TextSize = 13
+BtnMenuPlayer.LayoutOrder = 3
+Instance.new("UICorner", BtnMenuPlayer).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuSpeed = Instance.new("TextButton", SelectionFrame)
+BtnMenuSpeed.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuSpeed.BackgroundColor3 = WARNA_UNGU
+BtnMenuSpeed.Text = "Speed Player"
+BtnMenuSpeed.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMenuSpeed.Font = Enum.Font.Ubuntu
+BtnMenuSpeed.TextSize = 13
+BtnMenuSpeed.LayoutOrder = 4
+Instance.new("UICorner", BtnMenuSpeed).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuLangit = Instance.new("TextButton", SelectionFrame)
+BtnMenuLangit.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuLangit.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+BtnMenuLangit.Text = "langit cerah☀️"
+BtnMenuLangit.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMenuLangit.Font = Enum.Font.Ubuntu
+BtnMenuLangit.TextSize = 13
+BtnMenuLangit.LayoutOrder = 5
+Instance.new("UICorner", BtnMenuLangit).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuMonster = Instance.new("TextButton", SelectionFrame)
+BtnMenuMonster.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuMonster.BackgroundColor3 = ThemeMonster.ToscaDark
+BtnMenuMonster.Text = "menu monster"
+BtnMenuMonster.TextColor3 = ThemeMonster.YellowAcc
+BtnMenuMonster.Font = Enum.Font.Ubuntu
+BtnMenuMonster.TextSize = 13
+BtnMenuMonster.LayoutOrder = 6
+Instance.new("UICorner", BtnMenuMonster).CornerRadius = UDim.new(0, 6)
+
+local BtnMenuPergiKe = Instance.new("TextButton", SelectionFrame)
+BtnMenuPergiKe.Size = UDim2.new(1, -12, 0, 30)
+BtnMenuPergiKe.BackgroundColor3 = Color3.fromRGB(255, 215, 0) 
+BtnMenuPergiKe.Text = "pergi ke..?"
+BtnMenuPergiKe.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMenuPergiKe.Font = Enum.Font.Ubuntu
+BtnMenuPergiKe.TextSize = 13
+BtnMenuPergiKe.LayoutOrder = 7
+Instance.new("UICorner", BtnMenuPergiKe).CornerRadius = UDim.new(0, 6)
+
+-- TULISAN "NEW" / "NEW UPDATE" BERKEDIP
+local NewLabel1 = Instance.new("TextLabel", BtnMenuMonster)
+NewLabel1.Size = UDim2.new(0, 30, 0, 12)
+NewLabel1.Position = UDim2.new(1, -25, 0, -5)
+NewLabel1.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+NewLabel1.Text = "NEW"
+NewLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
+NewLabel1.Font = Enum.Font.GothamBold
+NewLabel1.TextSize = 8
+Instance.new("UICorner", NewLabel1).CornerRadius = UDim.new(0, 3)
+
+local NewLabel2 = Instance.new("TextLabel", BtnMenuPergiKe)
+NewLabel2.Size = UDim2.new(0, 30, 0, 12)
+NewLabel2.Position = UDim2.new(1, -25, 0, -5)
+NewLabel2.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+NewLabel2.Text = "NEW"
+NewLabel2.TextColor3 = Color3.fromRGB(255, 255, 255)
+NewLabel2.Font = Enum.Font.GothamBold
+NewLabel2.TextSize = 8
+Instance.new("UICorner", NewLabel2).CornerRadius = UDim.new(0, 3)
+
+local NewLabel3 = Instance.new("TextLabel", BtnMenuGalian)
+NewLabel3.Size = UDim2.new(0, 60, 0, 12) -- Lebih lebar untuk teks "New Update"
+NewLabel3.Position = UDim2.new(1, -55, 0, -5)
+NewLabel3.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+NewLabel3.Text = "New Update"
+NewLabel3.TextColor3 = Color3.fromRGB(255, 255, 255)
+NewLabel3.Font = Enum.Font.GothamBold
+NewLabel3.TextSize = 8
+Instance.new("UICorner", NewLabel3).CornerRadius = UDim.new(0, 3)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        local state = (NewLabel1.BackgroundTransparency == 0) and 0.5 or 0
+        if NewLabel1 and NewLabel1.Parent then NewLabel1.BackgroundTransparency = state end
+        if NewLabel2 and NewLabel2.Parent then NewLabel2.BackgroundTransparency = state end
+        if NewLabel3 and NewLabel3.Parent then NewLabel3.BackgroundTransparency = state end
+    end
+end)
+
+-- ========================================================
+-- 4. UI SCRIPT 1: MENCARI LOKASI ITEMS (GALIAN)
+-- ========================================================
+local MenuFrame = Instance.new("Frame")
+MenuFrame.Size = UDim2.new(0, 200, 0, 290)
+MenuFrame.Position = UDim2.new(0.5, -100, 0.5, -145)
+MenuFrame.BackgroundColor3 = WARNA_BG 
+MenuFrame.Visible = false
+MenuFrame.Active = true
+MenuFrame.Draggable = true
+MenuFrame.Parent = ScreenGui
+Instance.new("UICorner", MenuFrame).CornerRadius = UDim.new(0, 10)
+
+local TitleLabel = Instance.new("TextLabel", MenuFrame)
+TitleLabel.Size = UDim2.new(1, 0, 0, 32)
+TitleLabel.BackgroundColor3 = WARNA_UNGU 
+TitleLabel.Text = "Menu Sekop²"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Font = Enum.Font.Jura
+TitleLabel.TextSize = 15
+Instance.new("UICorner", TitleLabel).CornerRadius = UDim.new(0, 10)
+
+local MenuCloseBtn = Instance.new("TextButton", MenuFrame)
+MenuCloseBtn.Size = UDim2.new(0, 20, 0, 20)
+MenuCloseBtn.Position = UDim2.new(1, -25, 0, 6)
+MenuCloseBtn.Text = "X"
+MenuCloseBtn.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+MenuCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+MenuCloseBtn.Font = Enum.Font.Jura
+MenuCloseBtn.TextSize = 12
+Instance.new("UICorner", MenuCloseBtn).CornerRadius = UDim.new(0, 4)
+MenuCloseBtn.MouseButton1Click:Connect(function() MenuFrame.Visible = false end)
+
+local MenuMinBtn = Instance.new("TextButton", MenuFrame)
+MenuMinBtn.Size = UDim2.new(0, 20, 0, 20)
+MenuMinBtn.Position = UDim2.new(1, -50, 0, 6)
+MenuMinBtn.Text = "-"
+MenuMinBtn.BackgroundColor3 = Color3.fromRGB(135, 206, 250)
+MenuMinBtn.TextColor3 = Color3.new(20, 20, 25)
+MenuMinBtn.Font = Enum.Font.Jura
+MenuMinBtn.TextSize = 14
+Instance.new("UICorner", MenuMinBtn).CornerRadius = UDim.new(0, 4)
+
+local DigScrollFrame = Instance.new("ScrollingFrame", MenuFrame)
+DigScrollFrame.Size = UDim2.new(0.92, 0, 0.58, 0)
+DigScrollFrame.Position = UDim2.new(0.04, 0, 0.13, 0)
+DigScrollFrame.BackgroundTransparency = 1
+DigScrollFrame.BorderSizePixel = 0
+DigScrollFrame.ScrollBarThickness = 4
+
+local DigListLayout = Instance.new("UIListLayout", DigScrollFrame)
+DigListLayout.Padding = UDim.new(0, 3)
+DigListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+DigListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+DigListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+local StatusLabel = Instance.new("TextLabel", MenuFrame)
+StatusLabel.Size = UDim2.new(0.9, 0, 0, 20)
+StatusLabel.Position = UDim2.new(0.05, 0, 0.74, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "Target: Belum Memilih"
+StatusLabel.TextColor3 = WARNA_PINK_TUA 
+StatusLabel.Font = Enum.Font.Ubuntu
+StatusLabel.TextSize = 12
+
+local CancelButton = Instance.new("TextButton", MenuFrame)
+CancelButton.Size = UDim2.new(0.43, 0, 0, 32)
+CancelButton.Position = UDim2.new(0.05, 0, 0.84, 0)
+CancelButton.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+CancelButton.Text = "Cancel"
+CancelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CancelButton.Font = Enum.Font.Ubuntu
+CancelButton.TextSize = 13
+Instance.new("UICorner", CancelButton).CornerRadius = UDim.new(0, 6)
+
+local TeleportButton = Instance.new("TextButton", MenuFrame)
+TeleportButton.Size = UDim2.new(0.43, 0, 0, 32)
+TeleportButton.Position = UDim2.new(0.52, 0, 0.84, 0)
+TeleportButton.BackgroundColor3 = WARNA_BIRU
+TeleportButton.Text = "Teleport"
+TeleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TeleportButton.Font = Enum.Font.Ubuntu
+TeleportButton.TextSize = 13
+Instance.new("UICorner", TeleportButton).CornerRadius = UDim.new(0, 6)
+
+local isMenuMinimized = false
+MenuMinBtn.MouseButton1Click:Connect(function()
+    isMenuMinimized = not isMenuMinimized
+    if isMenuMinimized then
+        MenuFrame.Size = UDim2.new(0, 200, 0, 32)
+        DigScrollFrame.Visible = false
+        StatusLabel.Visible = false
+        CancelButton.Visible = false
+        TeleportButton.Visible = false
+        MenuMinBtn.Text = "+"
+    else
+        MenuFrame.Size = UDim2.new(0, 200, 0, 290)
+        DigScrollFrame.Visible = true
+        StatusLabel.Visible = true
+        CancelButton.Visible = true
+        TeleportButton.Visible = true
+        MenuMinBtn.Text = "-"
+    end
+end)
+
+local TerpilihObject = nil
+local TerpilihName = ""
+local KelangkaanData = {
+    {Id = "Ancient", Display = "🔱 Ancient", Order = 1},
+    {Id = "Legendary", Display = "✨ Legendary", Order = 2},
+    {Id = "Exotic", Display = "🔮 Exotic", Order = 3},
+    {Id = "Epic", Display = "⚡ Epic", Order = 4},
+    {Id = "Rare", Display = "🔥 Rare", Order = 5},
+    {Id = "Superior", Display = "🛡️ Superior", Order = 6},
+    {Id = "Uncommon", Display = "🟢 Uncommon", Order = 7},
+    {Id = "Common", Display = "🧱 Common", Order = 8}
+}
+
+local knownSpots = {}
+local spotCounters = {}
+local expandedCategories = {} 
+
+local function recalculateCanvas()
+    DigScrollFrame.CanvasSize = UDim2.new(0, 0, 0, DigListLayout.AbsoluteContentSize.Y + 6)
+end
+
+local function resetCamera()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+    end
+end
+
+local function buildMenuDinamis()
+    DigSpotsFolder = workspace:FindFirstChild("DigSpots")
+    for _, child in pairs(DigScrollFrame:GetChildren()) do
+        if not child:IsA("UIListLayout") then child:Destroy() end
+    end
+
+    if not DigSpotsFolder then return end
+
+    for _, k in ipairs(KelangkaanData) do
+        local galianDitemukan = {}
+        for _, spot in pairs(DigSpotsFolder:GetChildren()) do
+            if string.find(spot.Name, k.Id) then
+                if not knownSpots[spot] then
+                    spotCounters[k.Id] = (spotCounters[k.Id] or 0) + 1
+                    knownSpots[spot] = spotCounters[k.Id]
+                end
+                table.insert(galianDitemukan, spot)
+            end
+        end
+
+        if #galianDitemukan > 0 then
+            table.sort(galianDitemukan, function(a, b)
+                return knownSpots[a] < knownSpots[b]
+            end)
+
+            local CategoryGroupFrame = Instance.new("Frame", DigScrollFrame)
+            CategoryGroupFrame.Size = UDim2.new(1, 0, 0, 30)
+            CategoryGroupFrame.BackgroundTransparency = 1
+            CategoryGroupFrame.LayoutOrder = k.Order
+            CategoryGroupFrame.ClipsDescendants = true 
+            
+            local GroupList = Instance.new("UIListLayout", CategoryGroupFrame)
+            GroupList.Padding = UDim.new(0, 3)
+            GroupList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            GroupList.VerticalAlignment = Enum.VerticalAlignment.Top
+
+            local MainCatButton = Instance.new("TextButton", CategoryGroupFrame)
+            MainCatButton.Size = UDim2.new(1, -6, 0, 30)
+            MainCatButton.BackgroundColor3 = WARNA_PINK_TUA 
+            MainCatButton.Text = "  " .. k.Display .. " (" .. #galianDitemukan .. ")"
+            MainCatButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            MainCatButton.Font = Enum.Font.Ubuntu
+            MainCatButton.TextXAlignment = Enum.TextXAlignment.Left
+            MainCatButton.TextSize = 13
+            Instance.new("UICorner", MainCatButton).CornerRadius = UDim.new(0, 5)
+
+            local ExpandIndicator = Instance.new("TextLabel", MainCatButton)
+            ExpandIndicator.Size = UDim2.new(0, 25, 1, 0)
+            ExpandIndicator.Position = UDim2.new(1, -30, 0, 0)
+            ExpandIndicator.BackgroundTransparency = 1
+            ExpandIndicator.Text = "[ + ]"
+            ExpandIndicator.TextColor3 = Color3.fromRGB(255, 255, 255)
+            ExpandIndicator.Font = Enum.Font.Ubuntu
+            ExpandIndicator.TextSize = 12
+
+            local isExpanded = expandedCategories[k.Id] or false 
+            local SubFramesList = {}
+
+            for _, spotObject in ipairs(galianDitemukan) do
+                local index = knownSpots[spotObject]
+
+                local SubItemFrame = Instance.new("Frame", CategoryGroupFrame)
+                SubItemFrame.Size = UDim2.new(0.92, 0, 0, 28)
+                SubItemFrame.BackgroundTransparency = 1
+                SubItemFrame.Visible = false
+                table.insert(SubFramesList, SubItemFrame)
+
+                local SubButton = Instance.new("TextButton", SubItemFrame)
+                SubButton.Size = UDim2.new(0.78, 0, 1, 0)
+                SubButton.BackgroundColor3 = WARNA_UNGU 
+                SubButton.Text = "📍 " .. k.Id .. " " .. index
+                SubButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                SubButton.Font = Enum.Font.Ubuntu
+                SubButton.TextSize = 12
+                Instance.new("UICorner", SubButton).CornerRadius = UDim.new(0, 4)
+                
+                local EyeBtn = Instance.new("TextButton", SubItemFrame)
+                EyeBtn.Size = UDim2.new(0.2, 0, 1, 0)
+                EyeBtn.Position = UDim2.new(0.8, 0, 0, 0)
+                EyeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                EyeBtn.Text = "👁️"
+                EyeBtn.Font = Enum.Font.Ubuntu
+                EyeBtn.TextSize = 13
+                Instance.new("UICorner", EyeBtn).CornerRadius = UDim.new(0, 4)
+
+                if TerpilihObject == spotObject then
+                    SubButton.BackgroundColor3 = WARNA_BIRU
+                end
+
+                SubButton.MouseButton1Click:Connect(function()
+                    for _, folder in pairs(DigScrollFrame:GetChildren()) do
+                        if folder:IsA("Frame") then
+                            for _, subFrame in pairs(folder:GetChildren()) do
+                                if subFrame:IsA("Frame") then
+                                    local btn = subFrame:FindFirstChildOfClass("TextButton")
+                                    if btn then btn.BackgroundColor3 = WARNA_UNGU end
+                                end
+                            end
+                        end
+                    end
+                    SubButton.BackgroundColor3 = WARNA_BIRU 
+                    TerpilihObject = spotObject
+                    TerpilihName = k.Id .. " " .. index
+                    StatusLabel.Text = "Target Pas: " .. TerpilihName
+                    StatusLabel.TextColor3 = WARNA_BIRU 
+                end)
+
+                EyeBtn.MouseButton1Click:Connect(function()
+                    local targetPart = spotObject:IsA("BasePart") and spotObject or spotObject:FindFirstChildWhichIsA("BasePart") or spotObject.PrimaryPart
+                    if targetPart then
+                        if workspace.CurrentCamera.CameraSubject == targetPart then
+                            resetCamera()
+                            EyeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                        else
+                            workspace.CurrentCamera.CameraSubject = targetPart
+                            for _, folder in pairs(DigScrollFrame:GetChildren()) do
+                                if folder:IsA("Frame") then
+                                    for _, sub in pairs(folder:GetChildren()) do
+                                        if sub:IsA("Frame") then
+                                            local e = sub:GetChildren()[2] 
+                                            if e and e:IsA("TextButton") then e.BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
+                                        end
+                                    end
+                                end
+                            end
+                            EyeBtn.BackgroundColor3 = WARNA_BIRU
+                        end
+                    end
+                end)
+            end
+
+            if isExpanded then
+                ExpandIndicator.Text = "[ - ]"
+                CategoryGroupFrame.Size = UDim2.new(1, 0, 0, 30 + (#SubFramesList * 31))
+                for _, f in ipairs(SubFramesList) do f.Visible = true end
+            else
+                ExpandIndicator.Text = "[ + ]"
+                CategoryGroupFrame.Size = UDim2.new(1, 0, 0, 30)
+                for _, f in ipairs(SubFramesList) do f.Visible = false end
+            end
+
+            MainCatButton.MouseButton1Click:Connect(function()
+                isExpanded = not isExpanded
+                expandedCategories[k.Id] = isExpanded 
+                if isExpanded then
+                    ExpandIndicator.Text = "[ - ]"
+                    CategoryGroupFrame.Size = UDim2.new(1, 0, 0, 30 + (#SubFramesList * 31))
+                    for _, f in ipairs(SubFramesList) do f.Visible = true end
+                else
+                    ExpandIndicator.Text = "[ + ]"
+                    CategoryGroupFrame.Size = UDim2.new(1, 0, 0, 30)
+                    for _, f in ipairs(SubFramesList) do f.Visible = false end
+                end
+                task.wait(0.01)
+                recalculateCanvas()
+            end)
+        end
+    end
+    task.wait(0.02)
+    recalculateCanvas()
+end
+
+local digUpdateDebounce = false
+local function autoRefreshDigMenu()
+    if MenuFrame.Visible and not digUpdateDebounce then
+        digUpdateDebounce = true
+        task.delay(0.5, function() 
+            if MenuFrame.Visible then
+                buildMenuDinamis()
+            end
+            digUpdateDebounce = false
+        end)
+    end
+end
+
+local digConAdded, digConRemoved
+local function attachDigListener()
+    if digConAdded then digConAdded:Disconnect() end
+    if digConRemoved then digConRemoved:Disconnect() end
+    
+    local folder = workspace:FindFirstChild("DigSpots")
+    if folder then
+        digConAdded = folder.ChildAdded:Connect(autoRefreshDigMenu)
+        digConRemoved = folder.ChildRemoved:Connect(autoRefreshDigMenu)
+    end
+end
+
+workspace.ChildAdded:Connect(function(child)
+    if child.Name == "DigSpots" then
+        attachDigListener()
+        autoRefreshDigMenu()
+    end
+end)
+attachDigListener() 
+
+TeleportButton.MouseButton1Click:Connect(function()
+    if TerpilihObject and TerpilihObject.Parent and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPart = TerpilihObject:IsA("BasePart") and TerpilihObject or TerpilihObject:FindFirstChildWhichIsA("BasePart") or TerpilihObject.PrimaryPart
+        if targetPart then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPart.CFrame * CFrame.new(0, 3, 0)
+            resetCamera() 
+        end
+    end
+end)
+
+CancelButton.MouseButton1Click:Connect(function()
+    MenuFrame.Visible = false
+    resetCamera()
+end)
+
+-- ========================================================
+-- 5. UI SCRIPT 2: TELEPORT KE PLAYER
+-- ========================================================
+local PlayerTeleportFrame = Instance.new("Frame")
+PlayerTeleportFrame.Size = UDim2.new(0, 200, 0, 295) 
+PlayerTeleportFrame.Position = UDim2.new(0.5, -100, 0.5, -140)
+PlayerTeleportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+PlayerTeleportFrame.BorderSizePixel = 0
+PlayerTeleportFrame.Active = true
+PlayerTeleportFrame.Visible = false
+PlayerTeleportFrame.Parent = ScreenGui
+Instance.new("UICorner", PlayerTeleportFrame).CornerRadius = UDim.new(0, 10)
+
+local dragging, dragInput, dragStart, startPos
+local cornerArea = 40 
+
+PlayerTeleportFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        local relX = input.Position.X - PlayerTeleportFrame.AbsolutePosition.X
+        local relY = input.Position.Y - PlayerTeleportFrame.AbsolutePosition.Y
+        local width = PlayerTeleportFrame.AbsoluteSize.X
+        local height = PlayerTeleportFrame.AbsoluteSize.Y
+        
+        local inTopLeft = (relX <= cornerArea and relY <= cornerArea)
+        local inTopRight = (relX >= width - cornerArea and relY <= cornerArea)
+        local inBottomLeft = (relX <= cornerArea and relY >= height - cornerArea)
+        local inBottomRight = (relX >= width - cornerArea and relY >= height - cornerArea)
+
+        if inTopLeft or inTopRight or inBottomLeft or inBottomRight then
+            dragging = true
+            dragStart = input.Position
+            startPos = PlayerTeleportFrame.Position
+        end
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if dragging then
+            local delta = input.Position - dragStart
+            PlayerTeleportFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+        dragging = false 
+    end
+end)
+
+local PT_Title = Instance.new("TextLabel", PlayerTeleportFrame)
+PT_Title.Size = UDim2.new(1, -30, 0, 30)
+PT_Title.Text = "teleport by_chenan"
+PT_Title.TextColor3 = Color3.fromRGB(255, 255, 255) 
+PT_Title.BackgroundTransparency = 1
+PT_Title.Font = Enum.Font.Jura
+PT_Title.TextSize = 13
+
+local PT_CloseBtn = Instance.new("TextButton", PlayerTeleportFrame)
+PT_CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+PT_CloseBtn.Position = UDim2.new(1, -25, 0, 5)
+PT_CloseBtn.Text = "X"
+PT_CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+PT_CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+PT_CloseBtn.Font = Enum.Font.Jura
+PT_CloseBtn.TextSize = 12
+Instance.new("UICorner", PT_CloseBtn).CornerRadius = UDim.new(0, 4)
+PT_CloseBtn.MouseButton1Click:Connect(function() PlayerTeleportFrame.Visible = false end)
+
+local PT_MinimizeBtn = Instance.new("TextButton", PlayerTeleportFrame)
+PT_MinimizeBtn.Size = UDim2.new(0, 20, 0, 20)
+PT_MinimizeBtn.Position = UDim2.new(1, -50, 0, 5)
+PT_MinimizeBtn.Text = "-"
+PT_MinimizeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+PT_MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+PT_MinimizeBtn.Font = Enum.Font.Jura
+PT_MinimizeBtn.TextSize = 18
+Instance.new("UICorner", PT_MinimizeBtn).CornerRadius = UDim.new(0, 4)
+
+local PT_SearchBox = Instance.new("TextBox", PlayerTeleportFrame)
+PT_SearchBox.Size = UDim2.new(1, -20, 0, 25)
+PT_SearchBox.Position = UDim2.new(0, 10, 0, 35)
+PT_SearchBox.PlaceholderText = "Search Player..."
+PT_SearchBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+PT_SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+PT_SearchBox.Font = Enum.Font.Ubuntu
+PT_SearchBox.TextSize = 13
+Instance.new("UICorner", PT_SearchBox)
+
+local PT_ScrollFrame = Instance.new("ScrollingFrame", PlayerTeleportFrame)
+PT_ScrollFrame.Size = UDim2.new(1, -20, 0, 135)
+PT_ScrollFrame.Position = UDim2.new(0, 10, 0, 70)
+PT_ScrollFrame.BackgroundTransparency = 1
+PT_ScrollFrame.ScrollBarThickness = 2
+PT_ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+PT_ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Instance.new("UIListLayout", PT_ScrollFrame).Padding = UDim.new(0, 5)
+
+local PT_BottomPanel = Instance.new("Frame", PlayerTeleportFrame)
+PT_BottomPanel.Size = UDim2.new(1, -20, 0, 80)
+PT_BottomPanel.Position = UDim2.new(0, 10, 1, -85)
+PT_BottomPanel.BackgroundTransparency = 1
+
+local PT_SelectedLabel = Instance.new("TextLabel", PT_BottomPanel)
+PT_SelectedLabel.Size = UDim2.new(1, 0, 0, 15)
+PT_SelectedLabel.Text = "Target: None"
+PT_SelectedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+PT_SelectedLabel.BackgroundTransparency = 1
+PT_SelectedLabel.Font = Enum.Font.Ubuntu
+PT_SelectedLabel.TextSize = 12
+
+local teleportDistance = 3 
+
+local PT_SliderBg = Instance.new("Frame", PT_BottomPanel)
+PT_SliderBg.Size = UDim2.new(1, -45, 0, 8)
+PT_SliderBg.Position = UDim2.new(0, 0, 0, 25)
+PT_SliderBg.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Instance.new("UICorner", PT_SliderBg).CornerRadius = UDim.new(1, 0)
+
+local PT_SliderFill = Instance.new("Frame", PT_SliderBg)
+PT_SliderFill.Size = UDim2.new(0.3, 0, 1, 0) 
+PT_SliderFill.BackgroundColor3 = WARNA_BIRU
+Instance.new("UICorner", PT_SliderFill).CornerRadius = UDim.new(1, 0)
+
+local PT_SliderBtn = Instance.new("TextButton", PT_SliderBg)
+PT_SliderBtn.Size = UDim2.new(0, 12, 0, 12)
+PT_SliderBtn.Position = UDim2.new(0.3, -6, 0.5, -6)
+PT_SliderBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+PT_SliderBtn.Text = ""
+Instance.new("UICorner", PT_SliderBtn).CornerRadius = UDim.new(1, 0)
+
+local PT_DistanceLabel = Instance.new("TextLabel", PT_BottomPanel)
+PT_DistanceLabel.Size = UDim2.new(0, 40, 0, 15)
+PT_DistanceLabel.Position = UDim2.new(1, -40, 0, 21)
+PT_DistanceLabel.Text = "3m"
+PT_DistanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PT_DistanceLabel.BackgroundTransparency = 1
+PT_DistanceLabel.Font = Enum.Font.Ubuntu
+PT_DistanceLabel.TextSize = 11
+
+local isSliding = false
+PT_SliderBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSliding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSliding = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isSliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local relativeX = math.clamp((input.Position.X - PT_SliderBg.AbsolutePosition.X) / PT_SliderBg.AbsoluteSize.X, 0, 1)
+        PT_SliderFill.Size = UDim2.new(relativeX, 0, 1, 0)
+        PT_SliderBtn.Position = UDim2.new(relativeX, -6, 0.5, -6)
+        
+        teleportDistance = math.floor(relativeX * 10)
+        PT_DistanceLabel.Text = teleportDistance .. "m"
+    end
+end)
+
+local PT_BtnTeleport = Instance.new("TextButton", PT_BottomPanel)
+PT_BtnTeleport.Size = UDim2.new(0.48, 0, 0, 28)
+PT_BtnTeleport.Position = UDim2.new(0, 0, 1, -28)
+PT_BtnTeleport.Text = "Teleport"
+PT_BtnTeleport.BackgroundColor3 = WARNA_BIRU
+PT_BtnTeleport.Font = Enum.Font.Ubuntu
+PT_BtnTeleport.TextSize = 13
+PT_BtnTeleport.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", PT_BtnTeleport).CornerRadius = UDim.new(0, 4)
+
+local PT_BtnReset = Instance.new("TextButton", PT_BottomPanel)
+PT_BtnReset.Size = UDim2.new(0.48, 0, 0, 28)
+PT_BtnReset.Position = UDim2.new(0.52, 0, 1, -28)
+PT_BtnReset.Text = "Reset Cam"
+PT_BtnReset.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+PT_BtnReset.Font = Enum.Font.Ubuntu
+PT_BtnReset.TextSize = 13
+PT_BtnReset.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", PT_BtnReset).CornerRadius = UDim.new(0, 4)
+
+local isMinimized = false
+PT_MinimizeBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        PT_MinimizeBtn.Text = "+"
+        PlayerTeleportFrame.Size = UDim2.new(0, 200, 0, 30)
+        PT_SearchBox.Visible = false
+        PT_ScrollFrame.Visible = false
+        PT_BottomPanel.Visible = false
+    else
+        PT_MinimizeBtn.Text = "-"
+        PlayerTeleportFrame.Size = UDim2.new(0, 200, 0, 295)
+        PT_SearchBox.Visible = true
+        PT_ScrollFrame.Visible = true
+        PT_BottomPanel.Visible = true
+    end
+end)
+
+local selectedPlayer = nil
+local function updatePlayerList()
+    for _, child in pairs(PT_ScrollFrame:GetChildren()) do
+        if child:IsA("Frame") then child:Destroy() end
+    end
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local Item = Instance.new("Frame", PT_ScrollFrame)
+            Item.Name = player.Name
+            Item.Size = UDim2.new(1, 0, 0, 25)
+            Item.BackgroundTransparency = 1
+
+            local NameBtn = Instance.new("TextButton", Item)
+            NameBtn.Size = UDim2.new(0.75, 0, 1, 0)
+            NameBtn.Text = player.DisplayName
+            NameBtn.TextColor3 = Color3.fromRGB(255, 255, 255) 
+            NameBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            NameBtn.Font = Enum.Font.Ubuntu
+            NameBtn.TextSize = 13
+            Instance.new("UICorner", NameBtn)
+
+            local ViewBtn = Instance.new("TextButton", Item)
+            ViewBtn.Size = UDim2.new(0.2, 0, 1, 0)
+            ViewBtn.Position = UDim2.new(0.8, 0, 0, 0)
+            ViewBtn.Text = "👁️"
+            ViewBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            ViewBtn.Font = Enum.Font.Ubuntu
+            ViewBtn.TextSize = 13
+            Instance.new("UICorner", ViewBtn)
+
+            NameBtn.MouseButton1Click:Connect(function()
+                selectedPlayer = player
+                PT_SelectedLabel.Text = "Target: " .. player.DisplayName
+            end)
+
+            ViewBtn.MouseButton1Click:Connect(function()
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    workspace.CurrentCamera.CameraSubject = player.Character.Humanoid
+                end
+            end)
+        end
+    end
+end
+
+PT_SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local filter = PT_SearchBox.Text:lower()
+    for _, child in pairs(PT_ScrollFrame:GetChildren()) do
+        if child:IsA("Frame") then
+            child.Visible = child.Name:lower():find(filter) ~= nil
+        end
+    end
+end)
+
+PT_BtnTeleport.MouseButton1Click:Connect(function()
+    if selectedPlayer and selectedPlayer.Character and LocalPlayer.Character then
+        local targetPart = selectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local myPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if targetPart and myPart then
+            myPart.CFrame = targetPart.CFrame * CFrame.new(0, 0, teleportDistance)
+        end
+    end
+end)
+
+PT_BtnReset.MouseButton1Click:Connect(function()
+    resetCamera()
+end)
+
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+updatePlayerList()
+
+-- ========================================================
+-- 6. UI SCRIPT 3: SPEED PLAYER
+-- ========================================================
+local defaultSpeed = 16
+local targetSpeed = 16 
+local minSpeed = 1
+local maxSpeed = 250
+local speedStep = 1 
+
+local SpeedFrame = Instance.new("Frame")
+SpeedFrame.Size = UDim2.new(0, 160, 0, 35) 
+SpeedFrame.Position = UDim2.new(0.5, -80, 0.8, 0)
+SpeedFrame.BackgroundColor3 = WARNA_BG
+SpeedFrame.BackgroundTransparency = 0.1
+SpeedFrame.BorderSizePixel = 0
+SpeedFrame.Visible = false 
+SpeedFrame.Parent = ScreenGui
+
+local SpeedUICorner = Instance.new("UICorner")
+SpeedUICorner.CornerRadius = UDim.new(0, 8)
+SpeedUICorner.Parent = SpeedFrame
+
+local SpeedUIStroke = Instance.new("UIStroke")
+SpeedUIStroke.Color = WARNA_UNGU
+SpeedUIStroke.Thickness = 2
+SpeedUIStroke.Parent = SpeedFrame
+
+local MinusBtn = Instance.new("TextButton")
+MinusBtn.Size = UDim2.new(0, 30, 0, 30)
+MinusBtn.Position = UDim2.new(0, 2, 0, 2)
+MinusBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MinusBtn.Text = "-"
+MinusBtn.TextColor3 = WARNA_PINK_TUA
+MinusBtn.Font = Enum.Font.Jura
+MinusBtn.TextSize = 18
+MinusBtn.Parent = SpeedFrame
+Instance.new("UICorner", MinusBtn).CornerRadius = UDim.new(0, 6)
+
+local SpeedInput = Instance.new("TextBox")
+SpeedInput.Size = UDim2.new(0, 40, 0, 30)
+SpeedInput.Position = UDim2.new(0, 35, 0, 2)
+SpeedInput.BackgroundTransparency = 1
+SpeedInput.Text = tostring(targetSpeed)
+SpeedInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedInput.Font = Enum.Font.Ubuntu
+SpeedInput.TextSize = 14
+SpeedInput.ClearTextOnFocus = false 
+SpeedInput.Parent = SpeedFrame
+
+local PlusBtn = Instance.new("TextButton")
+PlusBtn.Size = UDim2.new(0, 30, 0, 30)
+PlusBtn.Position = UDim2.new(0, 78, 0, 2)
+PlusBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+PlusBtn.Text = "+"
+PlusBtn.TextColor3 = WARNA_BIRU
+PlusBtn.Font = Enum.Font.Jura
+PlusBtn.TextSize = 18
+PlusBtn.Parent = SpeedFrame
+Instance.new("UICorner", PlusBtn).CornerRadius = UDim.new(0, 6)
+
+local ResetBtn = Instance.new("TextButton")
+ResetBtn.Size = UDim2.new(0, 45, 0, 30)
+ResetBtn.Position = UDim2.new(0, 112, 0, 2)
+ResetBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30) 
+ResetBtn.Text = "Reset"
+ResetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ResetBtn.Font = Enum.Font.Ubuntu
+ResetBtn.TextSize = 13
+ResetBtn.Parent = SpeedFrame
+Instance.new("UICorner", ResetBtn).CornerRadius = UDim.new(0, 6)
+
+local function updateSpeedDisplay()
+    SpeedInput.Text = tostring(targetSpeed)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = targetSpeed
+    end
+end
+
+LocalPlayer.CharacterAdded:Connect(function(char) 
+    local humanoid = char:WaitForChild("Humanoid", 5)
+    if humanoid then
+        humanoid.WalkSpeed = targetSpeed
+    end
+end)
+
+SpeedInput.FocusLost:Connect(function()
+    local inputText = tonumber(SpeedInput.Text)
+    if inputText then
+        targetSpeed = math.clamp(math.round(inputText), minSpeed, maxSpeed)
+    end
+    updateSpeedDisplay()
+end)
+
+MinusBtn.MouseButton1Click:Connect(function()
+    targetSpeed = math.clamp(targetSpeed - speedStep, minSpeed, maxSpeed)
+    updateSpeedDisplay()
+end)
+
+PlusBtn.MouseButton1Click:Connect(function()
+    targetSpeed = math.clamp(targetSpeed + speedStep, minSpeed, maxSpeed)
+    updateSpeedDisplay()
+end)
+
+ResetBtn.MouseButton1Click:Connect(function()
+    targetSpeed = defaultSpeed 
+    updateSpeedDisplay()
+end)
+
+local spdDragging = false
+local spdDragInput, spdDragStart, spdStartPos
+
+local function updateSpeedDrag(input)
+    local delta = input.Position - spdDragStart
+    SpeedFrame.Position = UDim2.new(
+        spdStartPos.X.Scale, spdStartPos.X.Offset + delta.X, 
+        spdStartPos.Y.Scale, spdStartPos.Y.Offset + delta.Y
+    )
+end
+
+SpeedFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.Position.X > SpeedFrame.AbsolutePosition.X + 35 and input.Position.X < SpeedFrame.AbsolutePosition.X + 75 then
+            return 
+        end
+        spdDragging = true
+        spdDragStart = input.Position
+        spdStartPos = SpeedFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                spdDragging = false
+            end
+        end)
+    end
+end)
+
+SpeedFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        spdDragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == spdDragInput and spdDragging then
+        updateSpeedDrag(input)
+    end
+end)
+
+-- ========================================================
+-- 7. UI SCRIPT 4: AMBIL ITEMS BY_CHENAN
+-- ========================================================
+local AmbilItemsFrame = Instance.new("Frame", ScreenGui)
+local originalAmbilHeight = 210
+AmbilItemsFrame.Size = UDim2.new(0, 170, 0, originalAmbilHeight)
+AmbilItemsFrame.Position = UDim2.new(0.5, -85, 0.5, -105)
+AmbilItemsFrame.BackgroundColor3 = TELUR_BEBEK_TUA
+AmbilItemsFrame.Active = true
+AmbilItemsFrame.Visible = false 
+Instance.new("UICorner", AmbilItemsFrame).CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", AmbilItemsFrame)
+Stroke.Color = Color3.fromRGB(135, 206, 250)
+Stroke.Thickness = 1.5
+
+local Title = Instance.new("TextLabel", AmbilItemsFrame)
+Title.Size = UDim2.new(1, -55, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 2)
+Title.Text = "ambil items by_chenan"
+Title.TextColor3 = Color3.fromRGB(20, 50, 50)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 10 
+Title.BackgroundTransparency = 1
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local CloseBtn = Instance.new("TextButton", AmbilItemsFrame)
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.Position = UDim2.new(1, -25, 0, 6)
+CloseBtn.Text = "X"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 10
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+CloseBtn.MouseButton1Click:Connect(function() AmbilItemsFrame.Visible = false end)
+
+local MinBtn = Instance.new("TextButton", AmbilItemsFrame)
+MinBtn.Size = UDim2.new(0, 20, 0, 20)
+MinBtn.Position = UDim2.new(1, -50, 0, 6)
+MinBtn.Text = "-"
+MinBtn.BackgroundColor3 = Color3.fromRGB(135, 206, 250)
+MinBtn.TextColor3 = Color3.new(20, 20, 25)
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 12
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
+
+local Scroll = Instance.new("ScrollingFrame", AmbilItemsFrame)
+Scroll.Size = UDim2.new(0.9, 0, 0.78, 0)
+Scroll.Position = UDim2.new(0.05, 0, 0.16, 0)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+Scroll.ScrollBarThickness = 3
+Scroll.ScrollBarImageColor3 = Color3.fromRGB(255, 105, 180)
+Scroll.Active = true 
+
+local ListLayout = Instance.new("UIListLayout", Scroll)
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.SortOrder = Enum.SortOrder.Name
+
+local isAmbilMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    isAmbilMinimized = not isAmbilMinimized
+    if isAmbilMinimized then
+        AmbilItemsFrame.Size = UDim2.new(0, 170, 0, 32)
+        Scroll.Visible = false
+        MinBtn.Text = "+"
+    else
+        AmbilItemsFrame.Size = UDim2.new(0, 170, 0, originalAmbilHeight)
+        Scroll.Visible = true
+        MinBtn.Text = "-"
+    end
+end)
+
+local ConfirmFrame = Instance.new("Frame", AmbilItemsFrame)
+ConfirmFrame.Size = UDim2.new(1, 0, 1, 0)
+ConfirmFrame.BackgroundColor3 = TELUR_BEBEK_TUA
+ConfirmFrame.BackgroundTransparency = 0.05
+ConfirmFrame.Visible = false
+Instance.new("UICorner", ConfirmFrame).CornerRadius = UDim.new(0, 10)
+
+local ConfirmTitle = Instance.new("TextLabel", ConfirmFrame)
+ConfirmTitle.Size = UDim2.new(1, 0, 0, 30)
+ConfirmTitle.Position = UDim2.new(0, 0, 0.5, -45)
+ConfirmTitle.Text = "Pilih Aksi:"
+ConfirmTitle.TextColor3 = Color3.new(1, 1, 1)
+ConfirmTitle.Font = Enum.Font.GothamMedium
+ConfirmTitle.TextSize = 11
+ConfirmTitle.BackgroundTransparency = 1
+ConfirmTitle.TextWrapped = true
+
+local AmbilBtn = Instance.new("TextButton", ConfirmFrame)
+AmbilBtn.Size = UDim2.new(0, 70, 0, 26)
+AmbilBtn.Position = UDim2.new(0.5, -73, 0.5, 5)
+AmbilBtn.Text = "Ambil"
+AmbilBtn.BackgroundColor3 = TOSCA
+AmbilBtn.TextColor3 = Color3.new(1, 1, 1)
+AmbilBtn.Font = Enum.Font.GothamBold
+AmbilBtn.TextSize = 11
+Instance.new("UICorner", AmbilBtn).CornerRadius = UDim.new(0, 5)
+
+local BatalBtn = Instance.new("TextButton", ConfirmFrame)
+BatalBtn.Size = UDim2.new(0, 70, 0, 26)
+BatalBtn.Position = UDim2.new(0.5, 3, 0.5, 5)
+BatalBtn.Text = "Batal"
+BatalBtn.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+BatalBtn.TextColor3 = Color3.new(1, 1, 1)
+BatalBtn.Font = Enum.Font.GothamBold
+BatalBtn.TextSize = 11
+Instance.new("UICorner", BatalBtn).CornerRadius = UDim.new(0, 5)
+
+local targetItem = nil
+
+BatalBtn.MouseButton1Click:Connect(function() ConfirmFrame.Visible = false; targetItem = nil end)
+AmbilBtn.MouseButton1Click:Connect(function()
+    if targetItem and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = targetItem:GetPivot()
+    end
+    ConfirmFrame.Visible = false; targetItem = nil
+end)
+
+local function UpdateItemList()
+    for _, child in pairs(Scroll:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
+    local mebleFolder = workspace:FindFirstChild("Meble")
+    if not mebleFolder then return end
+
+    for _, item in pairs(mebleFolder:GetChildren()) do
+        local itemBtn = Instance.new("TextButton", Scroll)
+        itemBtn.Size = UDim2.new(0.95, 0, 0, 24)
+        itemBtn.Text = item.Name
+        itemBtn.TextColor3 = Color3.new(1, 1, 1)
+        itemBtn.BackgroundColor3 = TOSCA 
+        itemBtn.Font = Enum.Font.Gotham
+        itemBtn.TextSize = 10
+        Instance.new("UICorner", itemBtn).CornerRadius = UDim.new(0, 4)
+
+        itemBtn.MouseButton1Click:Connect(function()
+            targetItem = item
+            ConfirmTitle.Text = "Aksi:\n" .. item.Name
+            ConfirmFrame.Visible = true
+        end)
+    end
+end
+
+if workspace:FindFirstChild("Meble") then
+    workspace.Meble.ChildAdded:Connect(UpdateItemList)
+    workspace.Meble.ChildRemoved:Connect(UpdateItemList)
+end
+UpdateItemList()
+
+ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    Scroll.CanvasSize = UDim2.new(0, 0, 0, ListLayout.AbsoluteContentSize.Y)
+end)
+
+local ambilDragging, ambilDragInput, ambilDragStart, ambilStartPos
+AmbilItemsFrame.InputBegan:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not ConfirmFrame.Visible then
+        ambilDragging = true
+        ambilDragStart = input.Position
+        ambilStartPos = AmbilItemsFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then ambilDragging = false end
+        end)
+    end
+end)
+
+AmbilItemsFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then 
+        ambilDragInput = input 
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == ambilDragInput and ambilDragging then
+        local delta = input.Position - ambilDragStart
+        AmbilItemsFrame.Position = UDim2.new(ambilStartPos.X.Scale, ambilStartPos.X.Offset + delta.X, ambilStartPos.Y.Scale, ambilStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- ========================================================
+-- 8. UI SCRIPT 5: LANGIT CERAH BY CHENAN
+-- ========================================================
+local isSkyEnabled = false
+local BrightnessVal = 2
+local PinkSkyID = "12061264619" 
+
+local LangitFrame = Instance.new("Frame", ScreenGui)
+LangitFrame.Size = UDim2.new(0, 190, 0, 180)
+LangitFrame.Position = UDim2.new(0.5, -95, 0.5, -90)
+LangitFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+LangitFrame.Active = true
+LangitFrame.Visible = false 
+Instance.new("UICorner", LangitFrame).CornerRadius = UDim.new(0, 12)
+
+local LangitTitle = Instance.new("TextLabel", LangitFrame)
+LangitTitle.Size = UDim2.new(1, 0, 0, 30)
+LangitTitle.Text = "Langit Cerah by Chenan"
+LangitTitle.TextColor3 = Color3.fromRGB(64, 224, 208)
+LangitTitle.BackgroundTransparency = 1
+LangitTitle.Font = Enum.Font.GothamBold
+LangitTitle.TextSize = 12
+
+local LangitClose = Instance.new("TextButton", LangitFrame)
+LangitClose.Size = UDim2.new(0, 25, 0, 25)
+LangitClose.Position = UDim2.new(1, -30, 0, 5)
+LangitClose.Text = "X"
+LangitClose.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+Instance.new("UICorner", LangitClose).CornerRadius = UDim.new(1, 0)
+LangitClose.MouseButton1Click:Connect(function() LangitFrame.Visible = false end)
+
+local SkyToggle = Instance.new("TextButton", LangitFrame)
+SkyToggle.Size = UDim2.new(0.8, 0, 0, 35)
+SkyToggle.Position = UDim2.new(0.1, 0, 0.25, 0)
+SkyToggle.Text = "Mode: OFF"
+SkyToggle.BackgroundColor3 = Color3.fromRGB(64, 224, 208)
+Instance.new("UICorner", SkyToggle).CornerRadius = UDim.new(0, 6)
+
+local function ApplyProSky()
+    for _, obj in pairs(Lighting:GetChildren()) do if obj:IsA("Sky") then obj:Destroy() end end
+    local newSky = Instance.new("Sky", Lighting)
+    newSky.Name = "ProSky"
+    local url = "rbxassetid://" .. PinkSkyID
+    newSky.SkyboxBk, newSky.SkyboxDn, newSky.SkyboxFt = url, url, url
+    newSky.SkyboxLf, newSky.SkyboxRt, newSky.SkyboxUp = url, url, url
+end
+
+SkyToggle.MouseButton1Click:Connect(function()
+    if isSkyEnabled then return end 
+    isSkyEnabled = true
+    ApplyProSky()
+    SkyToggle.Text = "Mode: ON (LOCKED)"
+    SkyToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100) 
+    SkyToggle.Active = false 
+end)
+
+local LangitLabel = Instance.new("TextLabel", LangitFrame)
+LangitLabel.Size = UDim2.new(1, 0, 0, 20)
+LangitLabel.Position = UDim2.new(0, 0, 0.55, 0)
+LangitLabel.Text = "Kecerahan"
+LangitLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LangitLabel.BackgroundTransparency = 1
+LangitLabel.Font = Enum.Font.Gotham
+
+local LangitSliderBg = Instance.new("Frame", LangitFrame)
+LangitSliderBg.Size = UDim2.new(0.8, 0, 0, 6)
+LangitSliderBg.Position = UDim2.new(0.1, 0, 0.75, 0)
+LangitSliderBg.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+
+local LangitSliderBtn = Instance.new("ImageButton", LangitSliderBg)
+LangitSliderBtn.Size = UDim2.new(0, 20, 0, 20)
+LangitSliderBtn.Position = UDim2.new(0.4, -10, -0.7, 0)
+LangitSliderBtn.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+Instance.new("UICorner", LangitSliderBtn).CornerRadius = UDim.new(1, 0)
+
+local isSlidingSky = false
+LangitSliderBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSlidingSky = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSlidingSky = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isSlidingSky and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local pos = math.clamp((input.Position.X - LangitSliderBg.AbsolutePosition.X) / LangitSliderBg.AbsoluteSize.X, 0, 1)
+        LangitSliderBtn.Position = UDim2.new(pos, -10, -0.7, 0)
+        BrightnessVal = pos * 5
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if isSkyEnabled then
+        Lighting.Brightness = BrightnessVal
+        Lighting.ClockTime = 12
+        for _, obj in pairs(Lighting:GetChildren()) do 
+            if obj:IsA("Atmosphere") then obj:Destroy() end 
+        end
+    end
+end)
+
+local langitDragging, langitDragInput, langitDragStart, langitStartPos
+LangitFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        langitDragging = true
+        langitDragStart = input.Position
+        langitStartPos = LangitFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then langitDragging = false end
+        end)
+    end
+end)
+
+LangitFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then 
+        langitDragInput = input 
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == langitDragInput and langitDragging then
+        local delta = input.Position - langitDragStart
+        LangitFrame.Position = UDim2.new(langitStartPos.X.Scale, langitStartPos.X.Offset + delta.X, langitStartPos.Y.Scale, langitStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- ========================================================
+-- 9. UI SCRIPT 6: MENU MONSTER PRO
+-- ========================================================
+
+local MonsterFrame = Instance.new("Frame")
+MonsterFrame.Size = UDim2.new(0, 180, 0, 158) 
+MonsterFrame.Position = UDim2.new(0.5, -90, 0.2, 0)
+MonsterFrame.BackgroundColor3 = ThemeMonster.ToscaBg
+MonsterFrame.BorderSizePixel = 0
+MonsterFrame.ClipsDescendants = true
+MonsterFrame.Visible = false
+MonsterFrame.Parent = ScreenGui
+Instance.new("UICorner", MonsterFrame).CornerRadius = UDim.new(0, 6)
+
+local MonsterStroke = Instance.new("UIStroke", MonsterFrame)
+MonsterStroke.Color = ThemeMonster.YellowAcc
+MonsterStroke.Thickness = 1.5
+
+local MonTopBar = Instance.new("Frame")
+MonTopBar.Size = UDim2.new(1, 0, 0, 25)
+MonTopBar.BackgroundColor3 = ThemeMonster.ToscaDark
+MonTopBar.BorderSizePixel = 0
+MonTopBar.Parent = MonsterFrame
+
+local MonTitle = Instance.new("TextLabel")
+MonTitle.Size = UDim2.new(1, -50, 1, 0)
+MonTitle.Position = UDim2.new(0, 8, 0, 0)
+MonTitle.BackgroundTransparency = 1
+MonTitle.Text = "menu monster pro"
+MonTitle.TextColor3 = ThemeMonster.YellowAcc
+MonTitle.Font = Enum.Font.GothamBold
+MonTitle.TextSize = 11
+MonTitle.TextXAlignment = Enum.TextXAlignment.Left
+MonTitle.Parent = MonTopBar
+
+local MonMinBtn = Instance.new("TextButton")
+MonMinBtn.Size = UDim2.new(0, 25, 1, 0)
+MonMinBtn.Position = UDim2.new(1, -50, 0, 0)
+MonMinBtn.BackgroundTransparency = 1
+MonMinBtn.Text = "-"
+MonMinBtn.TextColor3 = ThemeMonster.TextLight
+MonMinBtn.Font = Enum.Font.GothamBold
+MonMinBtn.TextSize = 16
+MonMinBtn.Parent = MonTopBar
+
+local MonCloseBtn = Instance.new("TextButton")
+MonCloseBtn.Size = UDim2.new(0, 25, 1, 0)
+MonCloseBtn.Position = UDim2.new(1, -25, 0, 0)
+MonCloseBtn.BackgroundTransparency = 1
+MonCloseBtn.Text = "X"
+MonCloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+MonCloseBtn.Font = Enum.Font.GothamBold
+MonCloseBtn.TextSize = 12
+MonCloseBtn.Parent = MonTopBar
+
+local MonContent = Instance.new("Frame")
+MonContent.Size = UDim2.new(1, 0, 1, -25)
+MonContent.Position = UDim2.new(0, 0, 0, 25)
+MonContent.BackgroundTransparency = 1
+MonContent.Parent = MonsterFrame
+
+local function createMonButton(name, yPos)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 26)
+    btn.Position = UDim2.new(0.05, 0, 0, yPos)
+    btn.BackgroundColor3 = ThemeMonster.YellowDark
+    btn.Text = name .. ": OFF"
+    btn.TextColor3 = ThemeMonster.TextLight
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 10
+    btn.AutoButtonColor = false
+    btn.Parent = MonContent
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    return btn
+end
+
+local BtnHidup = createMonButton("monster hidup", 6)
+local BtnSemua = createMonButton("tampilkan semua monster", 38)
+local BtnKebal = createMonButton("kebal monster", 70)
+local BtnHapus = createMonButton("hapus monster", 102)
+
+local monDragging, monDragInput, monDragStart, monStartPos
+MonTopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        monDragging = true
+        monDragStart = input.Position
+        monStartPos = MonsterFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then monDragging = false end
+        end)
+    end
+end)
+MonTopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        monDragInput = input
+    end
+end)
+RunService.RenderStepped:Connect(function()
+    if monDragging and monDragInput then
+        local delta = monDragInput.Position - monDragStart
+        MonsterFrame.Position = UDim2.new(monStartPos.X.Scale, monStartPos.X.Offset + delta.X, monStartPos.Y.Scale, monStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+local isMonMinimized = false
+MonMinBtn.MouseButton1Click:Connect(function()
+    isMonMinimized = not isMonMinimized
+    MonsterFrame.Size = isMonMinimized and UDim2.new(0, 180, 0, 25) or UDim2.new(0, 180, 0, 158)
+end)
+
+MonCloseBtn.MouseButton1Click:Connect(function()
+    MonsterFrame.Visible = false
+end)
+
+local monConfig = { Hidup = false, Semua = false, Kebal = false, Hapus = false }
+
+local function toggleMonButton(btn, key, baseName)
+    monConfig[key] = not monConfig[key]
+    if monConfig[key] then
+        btn.BackgroundColor3 = ThemeMonster.YellowAcc
+        btn.TextColor3 = ThemeMonster.TextDark
+        btn.Text = baseName .. ": ON"
+    else
+        btn.BackgroundColor3 = ThemeMonster.YellowDark
+        btn.TextColor3 = ThemeMonster.TextLight
+        btn.Text = baseName .. ": OFF"
+    end
+end
+
+BtnHidup.MouseButton1Click:Connect(function() toggleMonButton(BtnHidup, "Hidup", "monster hidup") end)
+BtnSemua.MouseButton1Click:Connect(function() toggleMonButton(BtnSemua, "Semua", "tampilkan semua monster") end)
+BtnKebal.MouseButton1Click:Connect(function() toggleMonButton(BtnKebal, "Kebal", "kebal monster") end)
+BtnHapus.MouseButton1Click:Connect(function() toggleMonButton(BtnHapus, "Hapus", "hapus monster") end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if not LocalPlayer.Character then continue end
+        
+        if monConfig.Kebal then
+            local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.Name = "GhostMode" end
+        else
+            local ghost = LocalPlayer.Character:FindFirstChild("GhostMode")
+            if ghost then ghost.Name = "Humanoid" end
+        end
+    end
+end)
+
+local gm = getrawmetatable(game)
+if gm then
+    local oldNamecall = gm.__namecall
+    setreadonly(gm, false)
+
+    gm.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+
+        if monConfig.Kebal then
+            if method == "FireServer" then
+                local remoteName = tostring(self)
+                if remoteName:match("Hit") or remoteName:match("Damage") or remoteName:match("Thundermaw") then
+                    return 
+                end
+            end
+        end
+
+        return oldNamecall(self, ...)
+    end)
+    setreadonly(gm, true)
+end
+
+local monsterData = {} 
+local function getRoot(monster)
+    return monster.PrimaryPart or monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChildWhichIsA("BasePart")
+end
+
+RunService.Heartbeat:Connect(function(deltaTime)
+    local folder = workspace:FindFirstChild("MonsterDrivers")
+    if not folder then return end
+
+    for _, monster in ipairs(folder:GetChildren()) do
+        
+        if monConfig.Hapus then
+            if monster:IsDescendantOf(workspace) then
+                monster:Destroy()
+            end
+            continue
+        end
+
+        local root = getRoot(monster)
+        if not root then continue end
+        
+        if not monsterData[monster] then
+            monsterData[monster] = { LastPos = root.Position, HasMoved = false }
+        end
+        
+        local data = monsterData[monster]
+        local speed = (root.Position - data.LastPos).Magnitude / deltaTime
+        data.LastPos = root.Position
+        
+        if speed > 1.5 then 
+            data.HasMoved = true 
+        end
+        
+        local showText = false
+        local showBox = false
+
+        if monConfig.Hidup and data.HasMoved then showText = true end
+        if monConfig.Semua then
+            if data.HasMoved then showText = true else showBox = true end
+        end
+
+        if showText then
+            if not data.TextESP then
+                local bill = Instance.new("BillboardGui")
+                bill.Size = UDim2.new(0, 200, 0, 40)
+                bill.StudsOffset = Vector3.new(0, 4, 0)
+                bill.AlwaysOnTop = true
+                
+                local txt = Instance.new("TextLabel")
+                txt.Size = UDim2.new(1, 0, 1, 0)
+                txt.BackgroundTransparency = 1
+                txt.Text = "AWAS MONSTER"
+                txt.TextColor3 = ThemeMonster.YellowAcc
+                txt.Font = Enum.Font.GothamBlack
+                txt.TextSize = 16 
+                txt.TextStrokeTransparency = 0.2
+                txt.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                txt.Parent = bill
+                
+                bill.Parent = root
+                data.TextESP = bill
+            end
+        else
+            if data.TextESP then
+                data.TextESP:Destroy()
+                data.TextESP = nil
+            end
+        end
+
+        if showBox then
+            if not data.AestheticBox then
+                local box = Instance.new("SelectionBox")
+                box.Adornee = monster 
+                box.LineThickness = 0.05
+                box.Color3 = ThemeMonster.PinkNeon
+                box.SurfaceColor3 = ThemeMonster.PinkSoft
+                box.SurfaceTransparency = 0.8
+                box.Parent = root
+                data.AestheticBox = box
+            end
+        else
+            if data.AestheticBox then
+                data.AestheticBox:Destroy()
+                data.AestheticBox = nil
+            end
+        end
+    end
+    
+    for m, _ in pairs(monsterData) do
+        if not m.Parent then 
+            if monsterData[m].TextESP then monsterData[m].TextESP:Destroy() end
+            if monsterData[m].AestheticBox then monsterData[m].AestheticBox:Destroy() end
+            monsterData[m] = nil
+        end
+    end
+end)
+
+
+-- ========================================================
+-- 10. UI SCRIPT 7: PERGI KE..? (TELEPORT LOKASI SPESIFIK)
+-- ========================================================
+local PergiKeFrame = Instance.new("Frame", ScreenGui)
+local PK_originalHeight = 195 
+PergiKeFrame.Size = UDim2.new(0, 190, 0, PK_originalHeight)
+PergiKeFrame.Position = UDim2.new(0.5, -95, 0.5, -95)
+PergiKeFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+PergiKeFrame.Active = true
+PergiKeFrame.Visible = false
+Instance.new("UICorner", PergiKeFrame).CornerRadius = UDim.new(0, 8)
+
+local PK_Stroke = Instance.new("UIStroke", PergiKeFrame)
+PK_Stroke.Color = Color3.fromRGB(255, 215, 0)
+PK_Stroke.Thickness = 2
+
+local PK_Title = Instance.new("TextLabel", PergiKeFrame)
+PK_Title.Size = UDim2.new(1, -55, 0, 28)
+PK_Title.Position = UDim2.new(0, 10, 0, 2)
+PK_Title.Text = "TELEPORT MENU"
+PK_Title.TextColor3 = Color3.fromRGB(204, 163, 0)
+PK_Title.Font = Enum.Font.GothamBold
+PK_Title.TextSize = 11
+PK_Title.BackgroundTransparency = 1
+PK_Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local PK_CloseBtn = Instance.new("TextButton", PergiKeFrame)
+PK_CloseBtn.Size = UDim2.new(0, 18, 0, 18)
+PK_CloseBtn.Position = UDim2.new(1, -24, 0, 6)
+PK_CloseBtn.Text = "X"
+PK_CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 235, 59)
+PK_CloseBtn.TextColor3 = Color3.fromRGB(40, 40, 40)
+PK_CloseBtn.Font = Enum.Font.GothamBold
+PK_CloseBtn.TextSize = 9
+Instance.new("UICorner", PK_CloseBtn).CornerRadius = UDim.new(1, 0)
+PK_CloseBtn.MouseButton1Click:Connect(function() PergiKeFrame.Visible = false end)
+
+local PK_MinBtn = Instance.new("TextButton", PergiKeFrame)
+PK_MinBtn.Size = UDim2.new(0, 18, 0, 18)
+PK_MinBtn.Position = UDim2.new(1, -46, 0, 6)
+PK_MinBtn.Text = "-"
+PK_MinBtn.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+PK_MinBtn.TextColor3 = Color3.fromRGB(40, 40, 40)
+PK_MinBtn.Font = Enum.Font.GothamBold
+PK_MinBtn.TextSize = 11
+Instance.new("UICorner", PK_MinBtn).CornerRadius = UDim.new(1, 0)
+
+local PK_Container = Instance.new("Frame", PergiKeFrame)
+PK_Container.Size = UDim2.new(0.9, 0, 0.78, 0)
+PK_Container.Position = UDim2.new(0.05, 0, 0.18, 0)
+PK_Container.BackgroundTransparency = 1
+
+local PK_ListLayout = Instance.new("UIListLayout", PK_Container)
+PK_ListLayout.Padding = UDim.new(0, 6)
+PK_ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function BuatMenuTeleport(namaMenu, targetPath)
+    local RowFrame = Instance.new("Frame", PK_Container)
+    RowFrame.Size = UDim2.new(1, 0, 0, 26)
+    RowFrame.BackgroundColor3 = Color3.fromRGB(255, 253, 230)
+    Instance.new("UICorner", RowFrame).CornerRadius = UDim.new(0, 4)
+    
+    local rowStroke = Instance.new("UIStroke", RowFrame)
+    rowStroke.Color = Color3.fromRGB(255, 235, 59)
+    rowStroke.Thickness = 0.8
+
+    local Label = Instance.new("TextLabel", RowFrame)
+    Label.Size = UDim2.new(0.65, 0, 1, 0)
+    Label.Position = UDim2.new(0, 6, 0, 0)
+    Label.Text = namaMenu
+    Label.TextColor3 = Color3.fromRGB(60, 60, 60)
+    Label.Font = Enum.Font.GothamMedium
+    Label.TextSize = 10
+    Label.BackgroundTransparency = 1
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+
+    local TeleportBtn = Instance.new("TextButton", RowFrame)
+    TeleportBtn.Size = UDim2.new(0, 48, 0, 16)
+    TeleportBtn.Position = UDim2.new(1, -52, 0.5, -8)
+    TeleportBtn.Text = "teleport"
+    TeleportBtn.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+    TeleportBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TeleportBtn.Font = Enum.Font.GothamBold
+    TeleportBtn.TextSize = 8
+    Instance.new("UICorner", TeleportBtn).CornerRadius = UDim.new(0, 3)
+
+    TeleportBtn.MouseButton1Click:Connect(function()
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local target = targetPath()
+            if target then
+                if target:IsA("Model") then
+                    char.HumanoidRootPart.CFrame = target:GetPivot()
+                elseif target:IsA("BasePart") then
+                    char.HumanoidRootPart.CFrame = target.CFrame * CFrame.new(0, 3, 0)
+                end
+                TeleportBtn.Text = "Sukses!"
+                task.wait(0.8)
+                TeleportBtn.Text = "teleport"
+            else
+                TeleportBtn.Text = "Gagal!"
+                task.wait(0.8)
+                TeleportBtn.Text = "teleport"
+            end
+        end
+    end)
+end
+
+BuatMenuTeleport("otw disko", function()
+    return workspace:FindFirstChild("Club") and workspace.Club:FindFirstChild("Disco3")
+end)
+
+BuatMenuTeleport("depan lift", function()
+    if workspace:FindFirstChild("Metro") and workspace.Metro:FindFirstChild("SCIANY") then
+        return workspace.Metro.SCIANY:GetChildren()[30]
+    end
+    return nil
+end)
+
+BuatMenuTeleport("brankas", function()
+    return workspace:FindFirstChild("FurnitureStore") and workspace.FurnitureStore:FindFirstChild("StorageDeposit")
+end)
+
+BuatMenuTeleport("penjualan", function()
+    return workspace:FindFirstChild("FurnitureStore") and workspace.FurnitureStore:FindFirstChild("StorageDeposit")
+end)
+
+local isPKMinimized = false
+PK_MinBtn.MouseButton1Click:Connect(function()
+    isPKMinimized = not isPKMinimized
+    if isPKMinimized then
+        PergiKeFrame.Size = UDim2.new(0, 190, 0, 32)
+        PK_Container.Visible = false
+        PK_MinBtn.Text = "+"
+    else
+        PergiKeFrame.Size = UDim2.new(0, 190, 0, PK_originalHeight)
+        PK_Container.Visible = true
+        PK_MinBtn.Text = "-"
+    end
+end)
+
+local pkDragging, pkDragInput, pkDragStart, pkStartPos
+PergiKeFrame.InputBegan:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+        pkDragging = true
+        pkDragStart = input.Position
+        pkStartPos = PergiKeFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then pkDragging = false end
+        end)
+    end
+end)
+PergiKeFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then pkDragInput = input end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == pkDragInput and pkDragging then
+        local delta = input.Position - pkDragStart
+        PergiKeFrame.Position = UDim2.new(pkStartPos.X.Scale, pkStartPos.X.Offset + delta.X, pkStartPos.Y.Scale, pkStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- ========================================================
+-- 11. LOGIKA MENU PILIHAN UTAMA 
+-- ========================================================
+local menuTerbuka = false
+
+MainMenuButton.MouseButton1Click:Connect(function()
+    menuTerbuka = not menuTerbuka
+    if menuTerbuka then
+        SelectionFrame.Visible = true
+        ScrollHint.Visible = true
+        TweenService:Create(SelectionFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 160, 0, 145)}):Play()
+    else
+        ScrollHint.Visible = false
+        TweenService:Create(SelectionFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 160, 0, 0)}):Play()
+        task.delay(0.2, function()
+            if not menuTerbuka then SelectionFrame.Visible = false end
+        end)
+    end
+end)
+
+local function HideAllMenus()
+    menuTerbuka = false
+    ScrollHint.Visible = false
+    SelectionFrame.Size = UDim2.new(0, 160, 0, 0)
+    SelectionFrame.Visible = false
+    
+    SpeedFrame.Visible = false
+    AmbilItemsFrame.Visible = false
+    LangitFrame.Visible = false
+    MonsterFrame.Visible = false
+    PergiKeFrame.Visible = false
+end
+
+BtnMenuGalian.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    MenuFrame.Visible = true
+    buildMenuDinamis()
+end)
+
+BtnMenuAmbilItems.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    AmbilItemsFrame.Visible = true
+end)
+
+BtnMenuPlayer.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    PlayerTeleportFrame.Visible = true
+    updatePlayerList()
+end)
+
+BtnMenuSpeed.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    SpeedFrame.Visible = true
+end)
+
+BtnMenuLangit.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    LangitFrame.Visible = true
+end)
+
+BtnMenuMonster.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    MonsterFrame.Visible = true
+end)
+
+BtnMenuPergiKe.MouseButton1Click:Connect(function()
+    HideAllMenus()
+    PergiKeFrame.Visible = true
+end)
+
+-- ========================================================
+-- 12. FITUR NOTIFIKASI ITEM LANGKA BY CHENAN
+-- ========================================================
+local NotifContainer = Instance.new("Frame")
+NotifContainer.Name = "ChenanNotifContainer"
+-- Posisikan di pojok kanan bawah layar
+NotifContainer.AnchorPoint = Vector2.new(1, 1)
+NotifContainer.Position = UDim2.new(1, -15, 1, -15)
+NotifContainer.Size = UDim2.new(0, 240, 0.7, 0)
+NotifContainer.BackgroundTransparency = 1
+NotifContainer.Parent = ScreenGui
+
+local NotifLayout = Instance.new("UIListLayout", NotifContainer)
+NotifLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NotifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+NotifLayout.Padding = UDim.new(0, 10)
+
+local notifCounters = {
+    Ancient = 0,
+    Legendary = 0,
+    Epic = 0
+}
+
+local function SpawnNotification(rarity, spotObject)
+    notifCounters[rarity] = notifCounters[rarity] + 1
+    local count = notifCounters[rarity]
+    
+    local msg = ""
+    if count == 1 then
+        msg = "Lokasi " .. rarity .. count .. " telah di temukan\n<font size='10' color='#dcdcdc'>dari chenan</font>"
+    else
+        msg = "Lokasi " .. rarity .. count .. " baru di temukan\n<font size='10' color='#dcdcdc'>dari chenan</font>"
+    end
+    
+    -- Frame Notifikasi Utama (Warna Tosca Transparan)
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Size = UDim2.new(1, 0, 0, 85)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(64, 224, 208) -- Tosca
+    NotifFrame.BackgroundTransparency = 0.35
+    -- Menggunakan tick() agar frame terbaru selalu menumpuk ke atas tanpa menimpa frame lama
+    NotifFrame.LayoutOrder = math.floor(tick() * 1000)
+    NotifFrame.Parent = NotifContainer
+    Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 8)
+    
+    local NotifStroke = Instance.new("UIStroke", NotifFrame)
+    NotifStroke.Color = Color3.fromRGB(255, 255, 255)
+    NotifStroke.Thickness = 1.5
+    NotifStroke.Transparency = 0.4
+
+    -- Ikon Sesuai Kelangkaan
+    local IconLabel = Instance.new("TextLabel", NotifFrame)
+    IconLabel.Size = UDim2.new(0, 30, 0, 30)
+    IconLabel.Position = UDim2.new(0, 5, 0, 5)
+    IconLabel.BackgroundTransparency = 1
+    IconLabel.Text = (rarity == "Ancient" and "🔱") or (rarity == "Legendary" and "✨") or "⚡"
+    IconLabel.TextSize = 20
+
+    -- Teks Notifikasi
+    local NotifText = Instance.new("TextLabel", NotifFrame)
+    NotifText.Size = UDim2.new(1, -45, 0, 40)
+    NotifText.Position = UDim2.new(0, 40, 0, 5)
+    NotifText.BackgroundTransparency = 1
+    NotifText.RichText = true
+    NotifText.Text = msg
+    NotifText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NotifText.Font = Enum.Font.GothamBold
+    NotifText.TextSize = 12
+    NotifText.TextWrapped = true
+    NotifText.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Tombol Tutup X di pojok kanan atas
+    local BtnCloseX = Instance.new("TextButton", NotifFrame)
+    BtnCloseX.Size = UDim2.new(0, 20, 0, 20)
+    BtnCloseX.Position = UDim2.new(1, -25, 0, 5)
+    BtnCloseX.BackgroundTransparency = 1
+    BtnCloseX.Text = "X"
+    BtnCloseX.TextColor3 = Color3.fromRGB(255, 60, 60) -- Warna merah menyala
+    BtnCloseX.Font = Enum.Font.GothamBold
+    BtnCloseX.TextSize = 13
+    
+    BtnCloseX.MouseButton1Click:Connect(function()
+        if NotifFrame then NotifFrame:Destroy() end
+    end)
+    
+    -- Tombol Cancel
+    local BtnCancel = Instance.new("TextButton", NotifFrame)
+    BtnCancel.Size = UDim2.new(0.45, 0, 0, 25)
+    BtnCancel.Position = UDim2.new(0.04, 0, 1, -30)
+    BtnCancel.BackgroundColor3 = Color3.fromRGB(220, 50, 80)
+    BtnCancel.Text = "Cancel"
+    BtnCancel.TextColor3 = Color3.new(1, 1, 1)
+    BtnCancel.Font = Enum.Font.GothamBold
+    BtnCancel.TextSize = 11
+    Instance.new("UICorner", BtnCancel).CornerRadius = UDim.new(0, 5)
+    
+    -- Tombol Teleport
+    local BtnTele = Instance.new("TextButton", NotifFrame)
+    BtnTele.Size = UDim2.new(0.45, 0, 0, 25)
+    BtnTele.Position = UDim2.new(0.51, 0, 1, -30)
+    BtnTele.BackgroundColor3 = Color3.fromRGB(20, 120, 230)
+    BtnTele.Text = "Teleport"
+    BtnTele.TextColor3 = Color3.new(1, 1, 1)
+    BtnTele.Font = Enum.Font.GothamBold
+    BtnTele.TextSize = 11
+    Instance.new("UICorner", BtnTele).CornerRadius = UDim.new(0, 5)
+    
+    -- Fungsi Klik Tombol Bawah
+    BtnCancel.MouseButton1Click:Connect(function()
+        if NotifFrame then NotifFrame:Destroy() end
+    end)
+    
+    BtnTele.MouseButton1Click:Connect(function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPart = spotObject:IsA("BasePart") and spotObject or spotObject:FindFirstChildWhichIsA("BasePart") or spotObject.PrimaryPart
+            if targetPart then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = targetPart.CFrame * CFrame.new(0, 3, 0)
+            end
+        end
+        if NotifFrame then NotifFrame:Destroy() end
+    end)
+    
+    -- Notifikasi otomatis hilang setelah 20 detik jika dibiarkan
+    task.delay(20, function()
+        if NotifFrame and NotifFrame.Parent then
+            NotifFrame:Destroy()
+        end
+    end)
+end
+
+local notifiedSpots = {}
+
+local function CheckForRareSpots(spot)
+    if notifiedSpots[spot] then return end
+    notifiedSpots[spot] = true
+    
+    local rarityFound = nil
+    if string.find(spot.Name, "Legendary") then rarityFound = "Legendary"
+    elseif string.find(spot.Name, "Ancient") then rarityFound = "Ancient"
+    elseif string.find(spot.Name, "Epic") then rarityFound = "Epic"
+    end
+    
+    if rarityFound then
+        SpawnNotification(rarityFound, spot)
+    end
+end
+
+local function AttachRareNotifListener()
+    local folder = workspace:FindFirstChild("DigSpots")
+    if folder then
+        for _, spot in pairs(folder:GetChildren()) do
+            CheckForRareSpots(spot)
+        end
+        folder.ChildAdded:Connect(CheckForRareSpots)
+    end
+end
+
+workspace.ChildAdded:Connect(function(child)
+    if child.Name == "DigSpots" then
+        AttachRareNotifListener()
+    end
+end)
+
+AttachRareNotifListener()
