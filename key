@@ -11,7 +11,7 @@ local AllowedUsers = {
     ["cikiii_28"] = true,
     ["DeaLova_310"] = true,
     ["Sonia_220503"] = true,
-    ["Suriyanti1126"] = true
+    ["Suriyanti1126"] = true,
     ["Shadzine"] = true
 
 }
