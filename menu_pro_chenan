@@ -1,5 +1,5 @@
 -- =====================================================================
--- ✨ MENU PRO BY_CHENAN (UBAH LANGIT, BUAT BANGUNAN, COPY AVA, BUKA PINTU)
+-- ✨ MENU PRO BY_CHENAN (LED MARQUEE, REORDER TABS, BUTTON POSITION FIX)
 -- MODE GILA: 100% FULL FITUR (Save/Load Slot, Slider, Raycast, Pin Ava, dll)
 -- =====================================================================
 
@@ -37,13 +37,22 @@ local listUsers = {"KANAYA03247","sezoo81","berryj4em","toyab195","mazztonz4","c
 
 local function getID(id) return "rbxassetid://" .. tostring(id):match("%d+") end
 
+-- FUNGSI LED REKLAME (MARQUEE LOOP SEARAH)
+local function playLEDMarquee(lbl, duration)
+    lbl.Size = UDim2.new(2, 0, 1, 0)
+    lbl.Position = UDim2.new(-1, 0, 0, 0)
+    -- Bergerak ke kanan lalu reset otomatis dari kiri
+    local tw = TS:Create(lbl, TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false), {Position = UDim2.new(1, 0, 0, 0)})
+    tw:Play()
+end
+
 -- ================= UI SETUP & PEMBUKA =================
 local gui = Instance.new("ScreenGui", CG); gui.Name = "MenuProChenan"; gui.ResetOnSpawn = false
 
--- TOMBOL TOGGLE MENU PRO (Dinaikkan sedikit lagi agar aman dari UI Sekop²)
+-- TOMBOL TOGGLE MENU PRO (Dinaikkan jauh ke atas agar tidak tertutup)
 local openBtn = Instance.new("TextButton", gui)
 openBtn.Size = UDim2.new(0, 100, 0, 26) 
-openBtn.Position = UDim2.new(0, 20, 0.4, -50) -- <==== LOKASI NAIK LAGI (-50)
+openBtn.Position = UDim2.new(0, 20, 0.15, 0) -- <==== LOKASI DIPINDAHKAN JAUH KE ATAS
 openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 openBtn.Text = "MENU PRO"
 openBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -95,7 +104,7 @@ end)
 
 -- ================= MAIN MENU =================
 local bg = Instance.new("Frame", gui)
-bg.Size, bg.Position, bg.BackgroundColor3, bg.BackgroundTransparency = UDim2.new(0, 190, 0, 280), UDim2.new(0.5, -95, 0.5, -140), Color3.fromRGB(15, 15, 20), 0.35
+bg.Size, bg.Position, bg.BackgroundColor3, bg.BackgroundTransparency = UDim2.new(0, 190, 0, 280), UDim2.new(0.5, -95, 0.4, -140), Color3.fromRGB(15, 15, 20), 0.35
 bg.BorderSizePixel, bg.ClipsDescendants, bg.Visible = false
 Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 10)
 local UIStroke = Instance.new("UIStroke", bg); UIStroke.Color = Color3.fromRGB(80, 80, 120); UIStroke.Thickness = 1.5
@@ -111,49 +120,49 @@ local closeBtn = Instance.new("TextButton", topbar); closeBtn.Size, closeBtn.Pos
 closeBtn.MouseButton1Click:Connect(function() bg.Visible = false end)
 local minBtn = Instance.new("TextButton", topbar); minBtn.Size, minBtn.Position, minBtn.BackgroundColor3, minBtn.Text, minBtn.TextColor3, minBtn.Font = UDim2.new(0, 20, 0, 20), UDim2.new(1, -50, 0, 5), Color3.fromRGB(60, 60, 70), "-", Color3.new(1,1,1), Enum.Font.GothamBold; Instance.new("UICorner", minBtn).CornerRadius = UDim.new(1, 0)
 
--- ================= TAB NAV (Diubah menjadi ScrollingFrame & Animasi Marquee) =================
+-- ================= TAB NAV (Animasi LED Papan Reklame Berulang) =================
 local tabContainer = Instance.new("ScrollingFrame", bg)
 tabContainer.Size = UDim2.new(1, -16, 0, 25)
 tabContainer.Position = UDim2.new(0, 8, 0, 35)
 tabContainer.BackgroundTransparency = 1
 tabContainer.ScrollBarThickness = 0
 tabContainer.ScrollingDirection = Enum.ScrollingDirection.X
-tabContainer.CanvasSize = UDim2.new(0, 310, 0, 0) -- Lebar canvas untuk memuat 4 tombol
+tabContainer.CanvasSize = UDim2.new(0, 310, 0, 0)
 
 local tabLayout = Instance.new("UIListLayout", tabContainer)
 tabLayout.FillDirection = Enum.FillDirection.Horizontal
 tabLayout.Padding = UDim.new(0, 5)
 tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Fungsi Pembuat Tab dengan Teks Marquee (Bergulir)
+-- Fungsi Pembuat Tab
 local function createTabBtn(txt, order)
     local b = Instance.new("TextButton", tabContainer)
     b.Size = UDim2.new(0, 72, 1, 0)
     b.LayoutOrder = order
-    b.Text = "" -- Teks asli dikosongkan
+    b.Text = "" 
     b.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     b.ClipsDescendants = true
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 
     local lbl = Instance.new("TextLabel", b)
-    lbl.Size = UDim2.new(2, 0, 1, 0) -- Ukuran 2x lipat agar bisa geser
-    lbl.Position = UDim2.new(0, 0, 0, 0)
+    lbl.Size = UDim2.new(1, 0, 1, 0)
     lbl.BackgroundTransparency = 1
     lbl.Text = txt
     lbl.TextColor3 = Color3.fromRGB(180, 180, 180)
     lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 8
     
-    -- Efek Gulir Bolak-Balik (Marquee)
-    TS:Create(lbl, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true), {Position = UDim2.new(-0.8, 0, 0, 0)}):Play()
+    -- Pasang efek Marquee searah
+    playLEDMarquee(lbl, 3.5)
 
     return b, lbl
 end
 
+-- Posisi Tab Diubah Menjadi: Ubah Langit, Buka Pintu, Buat Bangunan, Copy Ava
 local tabSkyBtn, skyLbl = createTabBtn("☁️ Ubah Langit", 1)
-local tabBuildBtn, buildLbl = createTabBtn("🏗️ Buat Bangunan", 2)
-local tabCopyBtn, copyLbl = createTabBtn("👤 Copy Ava", 3)
-local tabDoorBtn, doorLbl = createTabBtn("🚪 Buka Pintu", 4)
+local tabDoorBtn, doorLbl = createTabBtn("🚪 Buka Pintu", 2)
+local tabBuildBtn, buildLbl = createTabBtn("🏗️ Buat Bangunan", 3)
+local tabCopyBtn, copyLbl = createTabBtn("👤 Copy Ava", 4)
 
 -- Frame masing-masing fitur
 local skyFrame = Instance.new("Frame", bg); skyFrame.Size, skyFrame.Position, skyFrame.BackgroundTransparency = UDim2.new(1, 0, 1, -65), UDim2.new(0, 0, 0, 65), 1
@@ -163,7 +172,6 @@ local pintuFrame = Instance.new("Frame", bg); pintuFrame.Size, pintuFrame.Positi
 
 -- Sistem Switch Tab
 local function switchTab(activeBtn, activeLbl, activeFrame)
-    -- Reset warna semua tombol
     tabSkyBtn.BackgroundColor3, skyLbl.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180)
     tabBuildBtn.BackgroundColor3, buildLbl.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180)
     tabCopyBtn.BackgroundColor3, copyLbl.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(180, 180, 180)
@@ -171,21 +179,18 @@ local function switchTab(activeBtn, activeLbl, activeFrame)
     
     skyFrame.Visible, buildFrame.Visible, copyFrame.Visible, pintuFrame.Visible = false, false, false, false
     
-    -- Aktifkan tab yang dipilih
     activeBtn.BackgroundColor3, activeLbl.TextColor3 = Color3.fromRGB(80, 100, 180), Color3.new(1,1,1)
     activeFrame.Visible = true
 end
 
 tabSkyBtn.MouseButton1Click:Connect(function() switchTab(tabSkyBtn, skyLbl, skyFrame) end)
+tabDoorBtn.MouseButton1Click:Connect(function() switchTab(tabDoorBtn, doorLbl, pintuFrame) end)
 tabBuildBtn.MouseButton1Click:Connect(function() switchTab(tabBuildBtn, buildLbl, buildFrame) end)
 tabCopyBtn.MouseButton1Click:Connect(function() switchTab(tabCopyBtn, copyLbl, copyFrame) end)
-tabDoorBtn.MouseButton1Click:Connect(function() switchTab(tabDoorBtn, doorLbl, pintuFrame) end)
 
--- Set default Tab
 switchTab(tabSkyBtn, skyLbl, skyFrame)
 
-
--- ================= TAB 4: BUKA PINTU (BARU) =================
+-- ================= TAB 4: BUKA PINTU =================
 local toggleDoorBtn = Instance.new("TextButton", pintuFrame)
 toggleDoorBtn.Size = UDim2.new(1, 0, 0, 40)
 toggleDoorBtn.Position = UDim2.new(0, 0, 0, 20)
@@ -218,7 +223,7 @@ toggleDoorBtn.MouseButton1Click:Connect(function()
 end)
 
 
--- ================= TAB 1: UBAH LANGIT =================
+-- ================= TAB 1: UBAH LANGIT (DENGAN EFEK LED) =================
 local isAutoCerah = false
 local cerahBtn = Instance.new("TextButton", skyFrame); cerahBtn.Size, cerahBtn.Position, cerahBtn.BackgroundColor3, cerahBtn.TextColor3, cerahBtn.Text, cerahBtn.Font, cerahBtn.TextSize = UDim2.new(1, -16, 0, 25), UDim2.new(0, 8, 0, 0), Color3.fromRGB(40, 40, 45), Color3.fromRGB(200, 200, 200), "🔴 Auto Cerah: OFF", Enum.Font.GothamBold, 10; Instance.new("UICorner", cerahBtn).CornerRadius = UDim.new(0, 6)
 cerahBtn.MouseButton1Click:Connect(function()
@@ -251,11 +256,13 @@ for _, v in ipairs(langit) do
 	Instance.new("UICorner", txtContainer).CornerRadius = UDim.new(0, 4)
 	
 	local lbl = Instance.new("TextLabel", txtContainer)
-	lbl.Size, lbl.Position = UDim2.new(2, 0, 1, 0), UDim2.new(0, 0, 0, 0)
+	lbl.Size, lbl.Position = UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0)
 	lbl.BackgroundTransparency, lbl.TextColor3, lbl.Font, lbl.TextSize = 1, Color3.new(1,1,1), Enum.Font.GothamSemibold, 8
 	lbl.Text = v[1] .. " by_chenan"
 	
-	TS:Create(lbl, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true), {Position = UDim2.new(-1, 0, 0, 0)}):Play()
+	-- Animasi Marquee LED untuk Galeri Langit
+	playLEDMarquee(lbl, 3)
+	
 	btn.MouseButton1Click:Connect(function() local sky = L:FindFirstChildWhichIsA("Sky") or Instance.new("Sky", L); sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt, sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = getID(v[2]), getID(v[3]), getID(v[4]), getID(v[5]), getID(v[6]), getID(v[7]) end)
 end
 
