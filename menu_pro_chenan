@@ -46,15 +46,16 @@ local function getID(id) return "rbxassetid://" .. tostring(id):match("%d+") end
 -- ================= UI SETUP & PEMBUKA =================
 local gui = Instance.new("ScreenGui", CG); gui.Name = "MenuProChenan"; gui.ResetOnSpawn = false
 
--- TOMBOL TOGGLE MENU PRO (Mengikuti Main Menu)
+-- TOMBOL TOGGLE MENU PRO (Ditempatkan di atas Sekop² & Bisa Digeser)
 local openBtn = Instance.new("TextButton", gui)
-openBtn.Size = UDim2.new(0, 85, 0, 26)
-openBtn.Position = UDim2.new(0.5, -185, 0.5, -140) -- Posisi default di sebelah kiri UI utama
+openBtn.Size = UDim2.new(0, 100, 0, 26) -- Dibuat sedikit lebih lebar agar proporsional
+openBtn.Position = UDim2.new(0, 20, 0.4, -35) -- Tepat di atas tombol Pilih Lokasi Sekop²
 openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 openBtn.Text = "MENU PRO"
 openBtn.TextColor3 = Color3.fromRGB(255, 0, 0) -- Merah Terang
 openBtn.Font = Enum.Font.GothamBlack
 openBtn.TextSize = 12
+openBtn.Active = true -- Wajib true agar bisa mendeteksi input drag
 Instance.new("UICorner", openBtn).CornerRadius = UDim.new(0, 6)
 local btnStroke = Instance.new("UIStroke", openBtn)
 btnStroke.Color = Color3.fromRGB(0, 255, 255) -- Cyan
@@ -76,6 +77,36 @@ blinkLabel.TextColor3 = Color3.fromRGB(255, 105, 180) -- Pink
 blinkLabel.Font = Enum.Font.GothamBold
 blinkLabel.TextSize = 10
 TS:Create(blinkLabel, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {TextTransparency = 1}):Play()
+
+-- ================= LOGIKA DRAG TOMBOL MENU PRO =================
+local obDragging, obDragInput, obDragStart, obStartPos
+
+openBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        obDragging = true
+        obDragStart = input.Position
+        obStartPos = openBtn.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                obDragging = false
+            end
+        end)
+    end
+end)
+
+openBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        obDragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == obDragInput and obDragging then
+        local delta = input.Position - obDragStart
+        openBtn.Position = UDim2.new(obStartPos.X.Scale, obStartPos.X.Offset + delta.X, obStartPos.Y.Scale, obStartPos.Y.Offset + delta.Y)
+    end
+end)
 
 -- ================= MAIN MENU =================
 local bg = Instance.new("Frame", gui)
@@ -119,7 +150,7 @@ local function switchTab(activeBtn, activeFrame)
 end
 tabSkyBtn.MouseButton1Click:Connect(function() switchTab(tabSkyBtn, skyFrame) end); tabBuildBtn.MouseButton1Click:Connect(function() switchTab(tabBuildBtn, buildFrame) end); tabCopyBtn.MouseButton1Click:Connect(function() switchTab(tabCopyBtn, copyFrame) end)
 
--- ================= TAB 1: LANGIT (DIPERBAIKI 2 KOLOM & TEXT BERJALAN) =================
+-- ================= TAB 1: LANGIT =================
 local isAutoCerah = false
 local cerahBtn = Instance.new("TextButton", skyFrame); cerahBtn.Size, cerahBtn.Position, cerahBtn.BackgroundColor3, cerahBtn.TextColor3, cerahBtn.Text, cerahBtn.Font, cerahBtn.TextSize = UDim2.new(1, -16, 0, 25), UDim2.new(0, 8, 0, 0), Color3.fromRGB(40, 40, 45), Color3.fromRGB(200, 200, 200), "🔴 Auto Cerah: OFF", Enum.Font.GothamBold, 10; Instance.new("UICorner", cerahBtn).CornerRadius = UDim.new(0, 6)
 cerahBtn.MouseButton1Click:Connect(function()
@@ -186,7 +217,7 @@ local SliderBG = Instance.new("Frame", ControlPanel); SliderBG.Size, SliderBG.Po
 local SliderFill = Instance.new("Frame", SliderBG); SliderFill.Size, SliderFill.BackgroundColor3, SliderFill.BorderSizePixel = UDim2.new(0.183, 0, 1, 0), Color3.fromRGB(80, 150, 200), 0; Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(1, 0)
 local SliderKnob = Instance.new("TextButton", SliderBG); SliderKnob.Size, SliderKnob.Position, SliderKnob.BackgroundColor3, SliderKnob.Text = UDim2.new(0, 8, 0, 8), UDim2.new(0.183, -4, 0.5, -4), Color3.fromRGB(220, 220, 220), ""; Instance.new("UICorner", SliderKnob).CornerRadius = UDim.new(1, 0)
 
--- Tombol Gerak (Full 12 Arah) - Jarak dan ukuran dirapatkan
+-- Tombol Gerak (Full 12 Arah)
 local FwdBtn = createAestheticBtn("MAJU", UDim2.new(0, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
 local ObjUp = createAestheticBtn("▲ NAIK", UDim2.new(0.34, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
 local BackBtn = createAestheticBtn("MUNDUR", UDim2.new(0.68, 0, 0, 60), UDim2.new(0.32, 0, 0, 16), ControlPanel)
@@ -660,7 +691,5 @@ UIS.InputChanged:Connect(function(input)
 	if input == dragInput and dragging then
 		local delta = input.Position - dragStart
 		bg.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		-- Mengikuti posisi background menu (sistem toggle disamping UI)
-		openBtn.Position = UDim2.new(bg.Position.X.Scale, bg.Position.X.Offset - 90, bg.Position.Y.Scale, bg.Position.Y.Offset)
 	end
 end)
