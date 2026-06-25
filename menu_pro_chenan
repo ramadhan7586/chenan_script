@@ -192,12 +192,13 @@ switchTab(tabSkyBtn, skyLbl, skyFrame)
 
 -- ================= TAB 4: BUKA PINTU =================
 local toggleDoorBtn = Instance.new("TextButton", pintuFrame)
-toggleDoorBtn.Size = UDim2.new(1, 0, 0, 40)
-toggleDoorBtn.Position = UDim2.new(0, 0, 0, 20)
+toggleDoorBtn.Size = UDim2.new(0, 110, 0, 35) -- Ukuran diperkecil seperti permintaan
+toggleDoorBtn.Position = UDim2.new(0.5, -55, 0, 30) -- Posisi di tengah
 toggleDoorBtn.Text = "BUKA RUANGAN: OFF"
 toggleDoorBtn.TextScaled = true
 toggleDoorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleDoorBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+toggleDoorBtn.BackgroundTransparency = 0.2 -- Sedikit transparan
 Instance.new("UICorner", toggleDoorBtn).CornerRadius = UDim.new(0, 6)
 
 local autoDelete = false
@@ -209,10 +210,21 @@ toggleDoorBtn.MouseButton1Click:Connect(function()
         
         task.spawn(function()
             while autoDelete do
-                local gp = workspace:FindFirstChild("GamePass")
-                if gp then for _, child in ipairs(gp:GetChildren()) do child:Destroy() end end
-                local sl = workspace:FindFirstChild("SpawnLocation")
-                if sl then sl:Destroy() end
+                -- 1. Hapus SEMUA isi dalam folder GamePass
+                local gamePassFolder = workspace:FindFirstChild("GamePass")
+                if gamePassFolder then
+                    for _, child in ipairs(gamePassFolder:GetChildren()) do
+                        child:Destroy()
+                    end
+                end
+
+                -- 2. Hapus SpawnLocation agar tidak mental
+                local spawnLoc = workspace:FindFirstChild("SpawnLocation")
+                if spawnLoc then 
+                    spawnLoc:Destroy() 
+                end
+                
+                -- Jeda 1 detik agar tidak lag/crash di executor
                 task.wait(1)
             end
         end)
