@@ -218,10 +218,12 @@ toggleDoorBtn.MouseButton1Click:Connect(function()
                     end
                 end
 
-                -- 2. Hapus SpawnLocation agar tidak mental
-                local spawnLoc = workspace:FindFirstChild("SpawnLocation")
-                if spawnLoc then 
-                    spawnLoc:Destroy() 
+                -- 2. Hapus SEMUA SpawnLocation secara brutal agar tidak ada titik mental (rubber-band)
+                -- Menggunakan GetDescendants agar Spawn yang disembunyikan dalam model/folder lain tetap musnah
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if obj:IsA("SpawnLocation") or obj.Name == "SpawnLocation" then
+                        obj:Destroy()
+                    end
                 end
                 
                 -- Jeda 1 detik agar tidak lag/crash di executor
