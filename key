@@ -14,7 +14,8 @@ local AllowedUsers = {
     ["Suriyanti1126"] = true,
     ["Uwie_Ajjah"] = true,
     ["Shadzine"] = true,
-    ["NirvanaLings"] = true
+    ["NirvanaLings"] = true,
+    ["ximerg0d"] = true
 
 }
 
