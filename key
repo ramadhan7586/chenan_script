@@ -15,7 +15,7 @@ local AllowedUsers = {
     ["Uwie_Ajjah"] = true,
     ["Shadzine"] = true,
     ["NirvanaLings"] = true,
-    ["ximerg0d"] = true
+    ["Ximerg0d"] = true
 
 }
 
