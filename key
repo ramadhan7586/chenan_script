@@ -17,7 +17,9 @@ local AllowedUsers = {
     ["NirvanaLings"] = true,
     ["all_11137"] = true,
     ["Ximerg0d"] = true,
-    ["panda_10206"] = true
+    ["panda_10206"] = true,
+    ["inara_sinaboy"] = true
+
 
 }
 
