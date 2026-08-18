@@ -19,7 +19,8 @@ local AllowedUsers = {
     ["Ximerg0d"] = true,
     ["panda_10206"] = true,
     ["inara_sinaboy"] = true,
-    ["bundaaeny"] = true
+    ["bundaaeny"] = true,
+    ["Shinypicapica"] = true
     
 
 
