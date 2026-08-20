@@ -1,0 +1,473 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+
+local lp = Players.LocalPlayer
+local Mouse = lp:GetMouse()
+local character = lp.Character or lp.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Data
+local selectedObjects = {} -- Objek yang di-highlight hijau
+local history = {} -- Untuk undo
+local selectMode = false -- Mode pilih
+local antiAirEnabled = false
+local isMinimized = false
+
+-- ==========================================
+-- UI UTAMA
+-- ==========================================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ChenanPro"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+pcall(function()
+    screenGui.Parent = CoreGui
+end)
+
+if not screenGui.Parent then
+    screenGui.Parent = lp:WaitForChild("PlayerGui")
+end
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 200, 0, 200)
+mainFrame.Position = UDim2.new(0.02, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Thickness = 2
+mainStroke.Color = Color3.fromRGB(0, 255, 200)
+mainStroke.Transparency = 0.3
+mainStroke.Parent = mainFrame
+
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+titleBar.BackgroundTransparency = 0.5
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 220, 180)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 150))
+})
+titleGradient.Rotation = 90
+titleGradient.Parent = titleBar
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 120, 1, 0)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "🗑️ Hapus Objek"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 12
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = titleBar
+
+-- Minimize
+local btnMinimize = Instance.new("TextButton")
+btnMinimize.Size = UDim2.new(0, 22, 0, 22)
+btnMinimize.Position = UDim2.new(1, -48, 0, 4)
+btnMinimize.BackgroundColor3 = Color3.fromRGB(0, 200, 170)
+btnMinimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnMinimize.TextSize = 14
+btnMinimize.Font = Enum.Font.GothamBold
+btnMinimize.Text = "−"
+btnMinimize.Parent = titleBar
+Instance.new("UICorner", btnMinimize).CornerRadius = UDim.new(0, 5)
+
+-- Close
+local btnClose = Instance.new("TextButton")
+btnClose.Size = UDim2.new(0, 22, 0, 22)
+btnClose.Position = UDim2.new(1, -24, 0, 4)
+btnClose.BackgroundColor3 = Color3.fromRGB(255, 60, 80)
+btnClose.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnClose.TextSize = 14
+btnClose.Font = Enum.Font.GothamBold
+btnClose.Text = "×"
+btnClose.Parent = titleBar
+Instance.new("UICorner", btnClose).CornerRadius = UDim.new(0, 5)
+
+-- Content Frame
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, 0, 0, 170)
+contentFrame.Position = UDim2.new(0, 0, 0, 30)
+contentFrame.BackgroundTransparency = 1
+contentFrame.BorderSizePixel = 0
+contentFrame.Parent = mainFrame
+
+-- Label Menu 1
+local menu1Label = Instance.new("TextLabel")
+menu1Label.Size = UDim2.new(1, -20, 0, 18)
+menu1Label.Position = UDim2.new(0, 10, 0, 3)
+menu1Label.BackgroundTransparency = 1
+menu1Label.Text = "🎯 HAPUS OBJEK"
+menu1Label.TextColor3 = Color3.fromRGB(0, 220, 180)
+menu1Label.Font = Enum.Font.GothamBold
+menu1Label.TextSize = 10
+menu1Label.TextXAlignment = Enum.TextXAlignment.Left
+menu1Label.Parent = contentFrame
+
+-- Tombol Mode Pilih
+local btnSelectMode = Instance.new("TextButton")
+btnSelectMode.Size = UDim2.new(0, 85, 0, 25)
+btnSelectMode.Position = UDim2.new(0, 10, 0, 23)
+btnSelectMode.Text = "🔴 PILIH: OFF"
+btnSelectMode.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+btnSelectMode.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnSelectMode.Font = Enum.Font.GothamBold
+btnSelectMode.TextSize = 10
+btnSelectMode.Parent = contentFrame
+Instance.new("UICorner", btnSelectMode).CornerRadius = UDim.new(0, 5)
+
+-- Tombol Hapus
+local btnDelete = Instance.new("TextButton")
+btnDelete.Size = UDim2.new(0, 85, 0, 25)
+btnDelete.Position = UDim2.new(0, 100, 0, 23)
+btnDelete.Text = "🗑️ HAPUS (0)"
+btnDelete.BackgroundColor3 = Color3.fromRGB(200, 50, 60)
+btnDelete.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnDelete.Font = Enum.Font.GothamBold
+btnDelete.TextSize = 10
+btnDelete.Visible = false
+btnDelete.Parent = contentFrame
+Instance.new("UICorner", btnDelete).CornerRadius = UDim.new(0, 5)
+
+-- Info Label
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, -20, 0, 20)
+infoLabel.Position = UDim2.new(0, 10, 0, 52)
+infoLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+infoLabel.TextColor3 = Color3.fromRGB(100, 255, 180)
+infoLabel.Font = Enum.Font.Code
+infoLabel.TextSize = 8
+infoLabel.Text = "Klik objek untuk highlight"
+infoLabel.Parent = contentFrame
+Instance.new("UICorner", infoLabel).CornerRadius = UDim.new(0, 4)
+
+-- Undo Button
+local btnUndo = Instance.new("TextButton")
+btnUndo.Size = UDim2.new(0, 85, 0, 22)
+btnUndo.Position = UDim2.new(0, 10, 0, 76)
+btnUndo.Text = "↩️ UNDO"
+btnUndo.BackgroundColor3 = Color3.fromRGB(0, 180, 200)
+btnUndo.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnUndo.Font = Enum.Font.GothamBold
+btnUndo.TextSize = 10
+btnUndo.Parent = contentFrame
+Instance.new("UICorner", btnUndo).CornerRadius = UDim.new(0, 5)
+
+-- Label Menu 2
+local menu2Label = Instance.new("TextLabel")
+menu2Label.Size = UDim2.new(1, -20, 0, 18)
+menu2Label.Position = UDim2.new(0, 10, 0, 103)
+menu2Label.BackgroundTransparency = 1
+menu2Label.Text = "🌊 ANTI AIR"
+menu2Label.TextColor3 = Color3.fromRGB(255, 100, 150)
+menu2Label.Font = Enum.Font.GothamBold
+menu2Label.TextSize = 10
+menu2Label.TextXAlignment = Enum.TextXAlignment.Left
+menu2Label.Parent = contentFrame
+
+-- Toggle Anti Air
+local btnAntiAir = Instance.new("TextButton")
+btnAntiAir.Size = UDim2.new(0, 85, 0, 25)
+btnAntiAir.Position = UDim2.new(0, 10, 0, 123)
+btnAntiAir.Text = "🔴 AIR: OFF"
+btnAntiAir.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+btnAntiAir.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnAntiAir.Font = Enum.Font.GothamBold
+btnAntiAir.TextSize = 10
+btnAntiAir.Parent = contentFrame
+Instance.new("UICorner", btnAntiAir).CornerRadius = UDim.new(0, 5)
+
+-- ==========================================
+-- FUNGSI SELEKSI OBJEK (KLIK DI MAP)
+-- ==========================================
+local function UpdateDeleteButton()
+    local count = 0
+    for _ in pairs(selectedObjects) do
+        count = count + 1
+    end
+    
+    if count > 0 then
+        btnDelete.Text = "🗑️ HAPUS (" .. count .. ")"
+        btnDelete.Visible = true
+    else
+        btnDelete.Visible = false
+    end
+end
+
+-- Klik objek di map untuk highlight
+Mouse.Button1Down:Connect(function()
+    if not selectMode then return end
+    
+    local target = Mouse.Target
+    if not target then return end
+    
+    -- Jangan pilih UI
+    if target:IsDescendantOf(screenGui) then return end
+    
+    -- Jangan pilih karakter sendiri
+    if character and target:IsDescendantOf(character) then return end
+    
+    -- Toggle seleksi
+    if selectedObjects[target] then
+        -- Batalkan pilihan
+        if selectedObjects[target].highlight then
+            selectedObjects[target].highlight:Destroy()
+        end
+        selectedObjects[target] = nil
+        infoLabel.Text = "❌ Dibatalkan: " .. target.Name
+    else
+        -- Buat highlight hijau
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ChenanHighlight"
+        highlight.FillColor = Color3.fromRGB(0, 255, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+        highlight.OutlineTransparency = 0
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        
+        pcall(function()
+            highlight.Parent = target
+        end)
+        
+        selectedObjects[target] = {highlight = highlight}
+        infoLabel.Text = "✅ Dipilih: " .. target.Name
+    end
+    
+    UpdateDeleteButton()
+end)
+
+-- Tombol Mode Pilih
+btnSelectMode.MouseButton1Click:Connect(function()
+    selectMode = not selectMode
+    
+    if selectMode then
+        btnSelectMode.Text = "🟢 PILIH: ON"
+        btnSelectMode.BackgroundColor3 = Color3.fromRGB(50, 150, 100)
+        infoLabel.Text = "Klik objek di map untuk highlight"
+    else
+        btnSelectMode.Text = "🔴 PILIH: OFF"
+        btnSelectMode.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+        
+        -- Bersihkan semua seleksi
+        for obj, data in pairs(selectedObjects) do
+            if data.highlight then data.highlight:Destroy() end
+        end
+        table.clear(selectedObjects)
+        UpdateDeleteButton()
+        infoLabel.Text = "Mode pilih nonaktif"
+    end
+end)
+
+-- Tombol Hapus
+btnDelete.MouseButton1Click:Connect(function()
+    local count = 0
+    for obj, data in pairs(selectedObjects) do
+        if obj and obj.Parent then
+            -- Clone untuk undo
+            local clone = obj:Clone()
+            local parent = obj.Parent
+            local name = obj.Name
+            
+            table.insert(history, {clone = clone, parent = parent, name = name})
+            
+            -- Hapus highlight
+            if data.highlight then data.highlight:Destroy() end
+            
+            -- Hapus objek
+            pcall(function()
+                obj:Destroy()
+            end)
+            
+            count = count + 1
+        end
+    end
+    
+    table.clear(selectedObjects)
+    UpdateDeleteButton()
+    infoLabel.Text = "✅ " .. count .. " objek dihapus!"
+end)
+
+-- Undo
+btnUndo.MouseButton1Click:Connect(function()
+    if #history == 0 then
+        infoLabel.Text = "Tidak ada yang di-undo"
+        return
+    end
+    
+    local data = table.remove(history)
+    local newObj = data.clone:Clone()
+    newObj.Name = data.name
+    pcall(function()
+        newObj.Parent = data.parent
+    end)
+    
+    infoLabel.Text = "↩️ Undo: " .. data.name
+end)
+
+-- ==========================================
+-- FUNGSI ANTI AIR
+-- ==========================================
+local function disableSwimming()
+    if humanoid then
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+        humanoid.SwimSpeed = 0
+        humanoid.AutoRotate = true
+        humanoid.PlatformStand = false
+    end
+end
+
+local function removeWaterPhysics()
+    local terrain = Workspace:FindFirstChild("Terrain")
+    if terrain then
+        pcall(function()
+            terrain.WaterTransparency = 1
+            terrain.WaterWaveSize = 0
+            terrain.WaterWaveSpeed = 0
+            terrain.WaterReflectance = 0
+        end)
+    end
+    
+    for _, v in pairs(Workspace:GetDescendants()) do
+        pcall(function()
+            if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("BasePart") then
+                local isWater = false
+                if v.Name:lower():find("water") then
+                    isWater = true
+                elseif v.Name:lower():find("air") then
+                    isWater = true
+                elseif v.Material == Enum.Material.Water then
+                    isWater = true
+                end
+                
+                if isWater then
+                    v.Transparency = 1
+                    v.CanCollide = false
+                    v.Material = Enum.Material.Air
+                    v.Anchored = false
+                end
+            end
+        end)
+    end
+end
+
+btnAntiAir.MouseButton1Click:Connect(function()
+    antiAirEnabled = not antiAirEnabled
+    
+    if antiAirEnabled then
+        btnAntiAir.Text = "🟢 AIR: ON"
+        btnAntiAir.BackgroundColor3 = Color3.fromRGB(50, 150, 100)
+        disableSwimming()
+        removeWaterPhysics()
+        
+        spawn(function()
+            while antiAirEnabled do
+                pcall(function()
+                    removeWaterPhysics()
+                    if humanoid then
+                        humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+                    end
+                end)
+                wait(1)
+            end
+        end)
+    else
+        btnAntiAir.Text = "🔴 AIR: OFF"
+        btnAntiAir.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+        
+        if humanoid then
+            pcall(function()
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+                humanoid.SwimSpeed = 16
+            end)
+        end
+        Workspace.Gravity = 196.2
+    end
+end)
+
+-- Respawn handler
+lp.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    
+    if antiAirEnabled then
+        spawn(function()
+            wait(1)
+            disableSwimming()
+        end)
+    end
+end)
+
+-- ==========================================
+-- DRAG SYSTEM
+-- ==========================================
+local dragging = false
+local dragInput, dragStart, startPos
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- ==========================================
+-- MINIMIZE & CLOSE
+-- ==========================================
+btnMinimize.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    
+    if isMinimized then
+        TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 200, 0, 30)
+        }):Play()
+        btnMinimize.Text = "+"
+    else
+        TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 200, 0, 200)
+        }):Play()
+        btnMinimize.Text = "−"
+    end
+end)
+
+btnClose.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+print("✅ Hapus Objek by Chenan Loaded!")
+print("🎯 Klik PILIH: ON, lalu klik objek di map")
+print("🗑️ Klik HAPUS untuk menghapus")
+print("🌊 Klik AIR: ON untuk hilangkan air")
