@@ -20,7 +20,9 @@ local AllowedUsers = {
     ["panda_10206"] = true,
     ["inara_sinaboy"] = true,
     ["bundaaeny"] = true,
-    ["Shinypicapica"] = true
+    ["Shinypicapica"] = true,
+    ["neryalien"] = true,
+    ["kacaknikoko"] = true
     
 
 
